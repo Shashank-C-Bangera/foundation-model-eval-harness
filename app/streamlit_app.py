@@ -103,10 +103,11 @@ def _build_overview_leaderboard(agg: dict[str, pd.DataFrame]) -> pd.DataFrame:
             continue
         task_values = (
             by_task_model[by_task_model["task"] == task][["model_id", metric]]
-            .rename(columns={metric: task_col})
             .drop_duplicates(subset=["model_id"])
+            .set_index("model_id")[metric]
         )
-        by_model = by_model.merge(task_values, on="model_id", how="left")
+        # Assign directly to avoid merge suffix collisions (e.g., extraction_f1).
+        by_model[task_col] = by_model["model_id"].map(task_values)
         default_score_cols.append(task_col)
 
     if default_score_cols:
