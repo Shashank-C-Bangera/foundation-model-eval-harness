@@ -22,6 +22,7 @@ class DatasetsConfig(BaseModel):
 
 class SamplingConfig(BaseModel):
     n_samples_per_task: int = 20
+    n_samples_by_task: dict[str, int] = Field(default_factory=dict)
 
 
 class GenerationConfig(BaseModel):

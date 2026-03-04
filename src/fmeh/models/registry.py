@@ -13,6 +13,8 @@ class ModelSpec:
 
 MODEL_REGISTRY: dict[str, ModelSpec] = {
     "flan_t5_small": ModelSpec(runner="hf_local", model_name="google/flan-t5-small"),
+    "t5_small": ModelSpec(runner="hf_local", model_name="t5-small"),
+    "tiny_gpt2": ModelSpec(runner="hf_local", model_name="sshleifer/tiny-gpt2"),
     "distilgpt2": ModelSpec(runner="hf_local", model_name="distilgpt2"),
     "tinyllama_chat": ModelSpec(runner="hf_local", model_name="TinyLlama/TinyLlama-1.1B-Chat-v1.0"),
     "mock_json": ModelSpec(runner="mock", model_name="mock_json"),

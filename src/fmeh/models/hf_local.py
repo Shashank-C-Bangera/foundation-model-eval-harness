@@ -58,7 +58,27 @@ class HFLocalRunner:
         _ = task
         started = time.perf_counter()
 
-        inputs = self.tokenizer(prompt, return_tensors="pt", truncation=True, max_length=1024)
+        tokenizer_limit = getattr(self.tokenizer, "model_max_length", None)
+        if (
+            not isinstance(tokenizer_limit, int)
+            or tokenizer_limit <= 0
+            or tokenizer_limit > 1_000_000
+        ):
+            tokenizer_limit = 1024
+        max_input_len = min(1024, tokenizer_limit)
+        if not self._is_encoder_decoder:
+            model_limit = getattr(self.model.config, "max_position_embeddings", None)
+            if isinstance(model_limit, int) and model_limit > 0:
+                # Reserve room for generated tokens to avoid causal-model position overflows.
+                max_input_len = min(max_input_len, model_limit - self.max_new_tokens - 1)
+        max_input_len = max(32, max_input_len)
+
+        inputs = self.tokenizer(
+            prompt,
+            return_tensors="pt",
+            truncation=True,
+            max_length=max_input_len,
+        )
         inputs = {k: v.to(self._device_obj) for k, v in inputs.items()}
 
         do_sample = self.temperature > 0
@@ -92,6 +112,10 @@ class HFLocalRunner:
             output_tokens=output_tokens,
         )
 
+    def close(self) -> None:
+        del self.model
+        del self.tokenizer
+
 
 class MockRunner:
     def __init__(self) -> None:
@@ -117,3 +141,6 @@ class MockRunner:
             prompt_tokens=len(prompt.split()),
             output_tokens=len(text.split()),
         )
+
+    def close(self) -> None:
+        return None

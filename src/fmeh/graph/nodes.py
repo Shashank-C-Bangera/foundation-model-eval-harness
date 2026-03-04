@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -15,7 +16,12 @@ from fmeh.eval.metrics import (
     summarize_scores,
     unsupported_claim_proxy,
 )
-from fmeh.eval.validators import json_validity, non_empty_output, simple_json_repair
+from fmeh.eval.validators import (
+    json_validity,
+    non_empty_output,
+    normalize_label,
+    simple_json_repair,
+)
 from fmeh.graph.state import EvalState
 from fmeh.prompts.templates import render_prompt
 
@@ -28,6 +34,68 @@ class NodeContext:
     jsonl_path: Path
     retriever: Any | None = None
     rag_top_k: int = 3
+
+
+def _classification_fallback(raw_output: str) -> dict[str, Any] | None:
+    match = re.search(
+        r"\b(yes|no|maybe|true|false|entailment|contradiction|supports|refutes)\b",
+        raw_output.lower(),
+    )
+    if match is None:
+        return None
+    payload = {
+        "label": normalize_label(match.group(1)),
+        "rationale": raw_output.strip()[:500],
+    }
+    try:
+        return ClassificationOutput.model_validate(payload).model_dump()
+    except ValidationError:
+        return None
+
+
+def _summarization_fallback(raw_output: str) -> dict[str, Any] | None:
+    summary = raw_output.strip().strip("`").strip()
+    if not summary:
+        return None
+    payload = {"summary": summary[:4000]}
+    try:
+        return SummarizationOutput.model_validate(payload).model_dump()
+    except ValidationError:
+        return None
+
+
+def _split_mentions(text: str) -> list[str]:
+    cleaned = text.strip().strip("[]")
+    if not cleaned:
+        return []
+    out: list[str] = []
+    for part in re.split(r"[,\n;|]", cleaned):
+        term = part.strip().strip('"').strip("'")
+        if term:
+            out.append(term)
+    return out
+
+
+def _extraction_fallback(raw_output: str) -> dict[str, Any] | None:
+    disease_match = re.search(
+        r"diseases?\s*[:=-]\s*(.+?)(?:\n|$|chemicals?\s*[:=-])",
+        raw_output,
+        flags=re.IGNORECASE | re.DOTALL,
+    )
+    chemical_match = re.search(
+        r"chemicals?\s*[:=-]\s*(.+?)(?:\n|$|diseases?\s*[:=-])",
+        raw_output,
+        flags=re.IGNORECASE | re.DOTALL,
+    )
+    diseases = _split_mentions(disease_match.group(1)) if disease_match else []
+    chemicals = _split_mentions(chemical_match.group(1)) if chemical_match else []
+    if not diseases and not chemicals:
+        return None
+    payload = {"diseases": diseases, "chemicals": chemicals}
+    try:
+        return ExtractionOutput.model_validate(payload).model_dump()
+    except ValidationError:
+        return None
 
 
 def _parse_output(task: str, raw_output: str) -> tuple[dict[str, Any] | None, str]:
@@ -57,6 +125,16 @@ def _parse_output(task: str, raw_output: str) -> tuple[dict[str, Any] | None, st
             return payload, ""
         except ValidationError as exc:
             parse_error = str(exc)
+
+    fallback: dict[str, Any] | None = None
+    if task == "classification":
+        fallback = _classification_fallback(raw_output)
+    elif task == "summarization":
+        fallback = _summarization_fallback(raw_output)
+    elif task == "extraction":
+        fallback = _extraction_fallback(raw_output)
+    if fallback is not None:
+        return fallback, ""
 
     return None, parse_error or "unable to parse"
 

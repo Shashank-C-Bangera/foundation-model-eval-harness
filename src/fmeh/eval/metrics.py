@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import contextlib
+import io
 import math
 from typing import Any
 
@@ -10,11 +12,37 @@ from fmeh.eval.validators import normalize_label
 
 _ROUGE = None
 _BERTSCORE = None
+_NLTK_READY = False
+
+
+def _ensure_nltk_resources() -> None:
+    global _NLTK_READY
+    if _NLTK_READY:
+        return
+    try:
+        import nltk
+    except Exception:
+        return
+
+    for resource in ("punkt", "punkt_tab"):
+        try:
+            nltk.data.find(f"tokenizers/{resource}")
+        except LookupError:
+            try:
+                with (
+                    contextlib.redirect_stdout(io.StringIO()),
+                    contextlib.redirect_stderr(io.StringIO()),
+                ):
+                    nltk.download(resource, quiet=True)
+            except Exception:
+                continue
+    _NLTK_READY = True
 
 
 def _get_rouge():
     global _ROUGE
     if _ROUGE is None:
+        _ensure_nltk_resources()
         _ROUGE = evaluate.load("rouge")
     return _ROUGE
 
@@ -59,7 +87,12 @@ def summarize_scores(target: str, pred: str, source: str) -> dict[str, float]:
     bert_f1 = math.nan
     try:
         bert = _get_bertscore()
-        bert_result = bert.compute(predictions=[pred], references=[target], lang="en")
+        bert_result = bert.compute(
+            predictions=[pred],
+            references=[target],
+            lang="en",
+            model_type="distilbert-base-uncased",
+        )
         bert_f1 = float(bert_result["f1"][0])
     except Exception:
         bert_f1 = math.nan

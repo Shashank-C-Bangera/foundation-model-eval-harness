@@ -1,9 +1,17 @@
 name: baseline_models
 models:
   - flan_t5_small
-  - distilgpt2
-  - tinyllama_chat
+  - t5_small
+  - tiny_gpt2
 prompt_versions:
-  - v1
+  - v2
 sampling:
-  n_samples_per_task: 15
+  n_samples_per_task: 50
+  n_samples_by_task:
+    classification: 100
+    summarization: 50
+    extraction: 50
+generation:
+  temperature: 0.0
+  top_p: 1.0
+  max_new_tokens: 64

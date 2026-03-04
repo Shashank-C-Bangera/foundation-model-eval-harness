@@ -72,14 +72,62 @@ def _coalesce(*values: Any) -> Any:
     return None
 
 
+def _dataset_split_names(name: str, subset: str | None) -> list[str]:
+    if subset:
+        return get_dataset_split_names(name, subset)
+    return get_dataset_split_names(name)
+
+
+def _load_split(name: str, subset: str | None, split_name: str):
+    if subset:
+        return load_dataset(name, subset, split=split_name)
+    return load_dataset(name, split=split_name)
+
+
+def _extract_mentions_from_bio(tokens: list[str], tags: list[str]) -> tuple[set[str], set[str]]:
+    diseases: set[str] = set()
+    chemicals: set[str] = set()
+    active_tokens: list[str] = []
+    active_type = ""
+
+    def flush(active_tokens_in: list[str], active_type_in: str) -> tuple[list[str], str]:
+        if active_tokens_in:
+            mention = " ".join(active_tokens_in).strip()
+            if mention:
+                lowered_type = active_type_in.lower()
+                if "disease" in lowered_type:
+                    diseases.add(mention)
+                elif "chemical" in lowered_type:
+                    chemicals.add(mention)
+        return [], ""
+
+    for tok, tag in zip(tokens, tags, strict=False):
+        if tag.startswith("B-"):
+            active_tokens, active_type = flush(active_tokens, active_type)
+            active_type = tag[2:]
+            active_tokens = [tok]
+        elif tag.startswith("I-"):
+            inside_type = tag[2:]
+            if active_tokens and active_type == inside_type:
+                active_tokens.append(tok)
+            else:
+                active_tokens, active_type = flush(active_tokens, active_type)
+                active_type = inside_type
+                active_tokens = [tok]
+        else:
+            active_tokens, active_type = flush(active_tokens, active_type)
+    flush(active_tokens, active_type)
+    return diseases, chemicals
+
+
 def _pubmedqa_examples(cfg: HarnessConfig) -> list[UnifiedExample]:
     source_cfg = cfg.datasets.pubmedqa
-    splits = get_dataset_split_names(source_cfg.name, source_cfg.subset)
+    splits = _dataset_split_names(source_cfg.name, source_cfg.subset)
     split_names = [s for s in splits if s in {"train", "validation", "test"}] or splits
 
     output: list[UnifiedExample] = []
     for split_name in split_names:
-        ds = load_dataset(source_cfg.name, source_cfg.subset, split=split_name)
+        ds = _load_split(source_cfg.name, source_cfg.subset, split_name)
         for row in ds:
             example_id = str(_coalesce(row.get("pubid"), row.get("id"), row.get("qid"), ""))
             question = _flatten_text(_coalesce(row.get("question"), row.get("query")))
@@ -97,7 +145,7 @@ def _pubmedqa_examples(cfg: HarnessConfig) -> list[UnifiedExample]:
 
             if not context:
                 continue
-            base_id = f"pubmedqa:{example_id or hashlib.md5(context.encode('utf-8'), usedforsecurity=False).hexdigest()[:12]}"
+            base_id = f"pubmedqa:{example_id or hashlib.md5(context.encode(), usedforsecurity=False).hexdigest()[:12]}"
 
             cls_input = f"Question: {question}\n\nAbstract: {context}".strip()
             cls_meta = {"source_split": split_name, "question": question}
@@ -133,48 +181,77 @@ def _pubmedqa_examples(cfg: HarnessConfig) -> list[UnifiedExample]:
 
 def _bc5cdr_examples(cfg: HarnessConfig) -> list[UnifiedExample]:
     source_cfg = cfg.datasets.bc5cdr
-    splits = get_dataset_split_names(source_cfg.name, source_cfg.subset)
+    splits = _dataset_split_names(source_cfg.name, source_cfg.subset)
 
     output: list[UnifiedExample] = []
     for split_name in splits:
-        ds = load_dataset(source_cfg.name, source_cfg.subset, split=split_name)
+        ds = _load_split(source_cfg.name, source_cfg.subset, split_name)
+        tag_names: list[str] = []
+        tag_feature = ds.features.get("tags") if hasattr(ds, "features") else None
+        if tag_feature is None and hasattr(ds, "features"):
+            tag_feature = ds.features.get("ner_tags")
+        if tag_feature is not None and getattr(tag_feature, "feature", None) is not None:
+            feature_names = getattr(tag_feature.feature, "names", None)
+            if isinstance(feature_names, list):
+                tag_names = [str(x) for x in feature_names]
+
         for row in ds:
             doc_id = str(_coalesce(row.get("document_id"), row.get("id"), ""))
 
-            passages = row.get("passages") or []
-            text_chunks: list[str] = []
-            for p in passages:
-                p_text = p.get("text") if isinstance(p, dict) else None
-                text_chunks.append(_flatten_text(p_text))
-            doc_text = " ".join(t for t in text_chunks if t).strip()
-            if not doc_text:
-                doc_text = _flatten_text(
-                    _coalesce(row.get("document"), row.get("text"), row.get("sentence"))
-                )
-            if not doc_text:
-                continue
+            tokens = row.get("tokens")
+            tags = row.get("tags")
+            if tags is None:
+                tags = row.get("ner_tags")
 
             diseases: set[str] = set()
             chemicals: set[str] = set()
-            entities = row.get("entities") or []
-            for entity in entities:
-                if not isinstance(entity, dict):
-                    continue
-                etype = str(entity.get("type", "")).lower()
-                mention = _flatten_text(entity.get("text", ""))
-                if not mention:
-                    continue
-                mention = mention.strip()
-                if "disease" in etype:
-                    diseases.add(mention)
-                elif "chemical" in etype:
-                    chemicals.add(mention)
+
+            if isinstance(tokens, list) and isinstance(tags, list) and tokens:
+                normalized_tokens = [str(t) for t in tokens]
+                normalized_tags: list[str] = []
+                for raw_tag in tags:
+                    if isinstance(raw_tag, int) and 0 <= raw_tag < len(tag_names):
+                        normalized_tags.append(tag_names[raw_tag])
+                    else:
+                        normalized_tags.append(str(raw_tag))
+
+                diseases, chemicals = _extract_mentions_from_bio(normalized_tokens, normalized_tags)
+
+                doc_text = " ".join(normalized_tokens).strip()
+            else:
+                passages = row.get("passages") or []
+                text_chunks: list[str] = []
+                for p in passages:
+                    p_text = p.get("text") if isinstance(p, dict) else None
+                    text_chunks.append(_flatten_text(p_text))
+                doc_text = " ".join(t for t in text_chunks if t).strip()
+                if not doc_text:
+                    doc_text = _flatten_text(
+                        _coalesce(row.get("document"), row.get("text"), row.get("sentence"))
+                    )
+
+                entities = row.get("entities") or []
+                for entity in entities:
+                    if not isinstance(entity, dict):
+                        continue
+                    etype = str(entity.get("type", "")).lower()
+                    mention = _flatten_text(entity.get("text", ""))
+                    if not mention:
+                        continue
+                    mention = mention.strip()
+                    if "disease" in etype:
+                        diseases.add(mention)
+                    elif "chemical" in etype:
+                        chemicals.add(mention)
+
+            if not doc_text:
+                continue
 
             target_obj = {
                 "diseases": sorted(diseases),
                 "chemicals": sorted(chemicals),
             }
-            base_id = f"bc5cdr:{doc_id or hashlib.md5(doc_text.encode('utf-8'), usedforsecurity=False).hexdigest()[:12]}"
+            base_id = f"bc5cdr:{doc_id or hashlib.md5(doc_text.encode(), usedforsecurity=False).hexdigest()[:12]}"
 
             output.append(
                 UnifiedExample(
@@ -282,7 +359,8 @@ def sample_for_run(df: pd.DataFrame, cfg: HarnessConfig) -> pd.DataFrame:
     parts: list[pd.DataFrame] = []
     for task in cfg.tasks:
         task_df = df[df["task"] == task]
-        n = min(cfg.sampling.n_samples_per_task, len(task_df))
+        requested = cfg.sampling.n_samples_by_task.get(task, cfg.sampling.n_samples_per_task)
+        n = min(max(int(requested), 0), len(task_df))
         if n == 0:
             continue
         sampled = task_df.sample(n=n, random_state=cfg.seed)

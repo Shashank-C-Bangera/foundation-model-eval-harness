@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import gc
+import json
 import os
 import shutil
 import subprocess
@@ -101,38 +103,38 @@ def run_experiment(
             top_p=cfg.generation.top_p,
             max_new_tokens=cfg.generation.max_new_tokens,
         )
-        for prompt_version in cfg.prompt_versions:
-            ctx = NodeContext(
-                runner=runner,
-                prompt_version=prompt_version,
-                duckdb_logger=db_logger,
-                jsonl_path=run_dir / "preds.jsonl",
-                retriever=retriever,
-                rag_top_k=cfg.rag.top_k,
-            )
-            graph = build_eval_graph(ctx)
+        try:
+            for prompt_version in cfg.prompt_versions:
+                ctx = NodeContext(
+                    runner=runner,
+                    prompt_version=prompt_version,
+                    duckdb_logger=db_logger,
+                    jsonl_path=run_dir / "preds.jsonl",
+                    retriever=retriever,
+                    rag_top_k=cfg.rag.top_k,
+                )
+                graph = build_eval_graph(ctx)
 
-            for row in track(rows, description=f"Model={model_id} Prompt={prompt_version}"):
-                initial_state = {
-                    "run_id": run_id,
-                    "experiment": cfg.name,
-                    "example_id": row["id"],
-                    "split": row.get("split", ""),
-                    "task": row["task"],
-                    "model_id": model_id,
-                    "prompt_version": prompt_version,
-                    "input": row.get("input", ""),
-                    "target_text": row.get("target_text", ""),
-                    "target_json": row.get("target_json", ""),
-                    "meta_json": row.get("meta_json", "{}"),
-                    "repair_attempted": False,
-                    "error": "",
-                }
-                try:
-                    graph.invoke(initial_state)
-                except Exception as exc:
-                    db_logger.log_sample(
-                        {
+                for row in track(rows, description=f"Model={model_id} Prompt={prompt_version}"):
+                    initial_state = {
+                        "run_id": run_id,
+                        "experiment": cfg.name,
+                        "example_id": row["id"],
+                        "split": row.get("split", ""),
+                        "task": row["task"],
+                        "model_id": model_id,
+                        "prompt_version": prompt_version,
+                        "input": row.get("input", ""),
+                        "target_text": row.get("target_text", ""),
+                        "target_json": row.get("target_json", ""),
+                        "meta_json": row.get("meta_json", "{}"),
+                        "repair_attempted": False,
+                        "error": "",
+                    }
+                    try:
+                        graph.invoke(initial_state)
+                    except Exception as exc:
+                        error_row = {
                             "timestamp": pd.Timestamp.utcnow().isoformat(),
                             "run_id": run_id,
                             "experiment": cfg.name,
@@ -156,10 +158,17 @@ def run_experiment(
                             "output_tokens": 0,
                             "error": str(exc),
                         }
-                    )
-                completed += 1
-                if completed % 50 == 0 or completed == total_jobs:
-                    console.print(f"Completed {completed}/{total_jobs}")
+                        db_logger.log_sample(error_row)
+                        with (run_dir / "preds.jsonl").open("a", encoding="utf-8") as f:
+                            f.write(json.dumps(error_row, ensure_ascii=False) + "\n")
+                    completed += 1
+                    if completed % 50 == 0 or completed == total_jobs:
+                        console.print(f"Completed {completed}/{total_jobs}")
+        finally:
+            if hasattr(runner, "close"):
+                runner.close()
+            del runner
+            gc.collect()
 
     results_df = db_logger.read_all()
     db_logger.close()

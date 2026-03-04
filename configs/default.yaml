@@ -13,8 +13,8 @@ datasets:
     name: qiaojin/PubMedQA
     subset: pqa_labeled
   bc5cdr:
-    name: bigbio/bc5cdr
-    subset: bc5cdr_source
+    name: cvlt-mao/bc5cdr
+    subset: null
 sampling:
   n_samples_per_task: 20
 generation:
