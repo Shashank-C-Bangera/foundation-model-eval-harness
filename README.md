@@ -44,6 +44,8 @@ Local dashboard run:
 python -m streamlit run app.py
 ```
 
+Note: the Streamlit dashboard is the primary interface; no HTML report preview is rendered in-app.
+
 ## What This Solves
 
 This repository provides a repeatable way to compare foundation models and prompt versions across multiple NLP tasks while preserving full run traceability:
