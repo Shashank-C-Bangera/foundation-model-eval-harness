@@ -1,0 +1,9 @@
+name: baseline_models
+models:
+  - flan_t5_small
+  - distilgpt2
+  - tinyllama_chat
+prompt_versions:
+  - v1
+sampling:
+  n_samples_per_task: 15

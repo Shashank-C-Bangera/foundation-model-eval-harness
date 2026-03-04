@@ -1,0 +1,25 @@
+__pycache__/
+*.py[cod]
+*.so
+*.dylib
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.DS_Store
+.venv/
+.env
+
+# Data and run artifacts
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+runs/*
+!runs/.gitkeep
+mlruns/
+
+# Model caches
+.cache/

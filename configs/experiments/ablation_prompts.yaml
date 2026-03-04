@@ -1,0 +1,8 @@
+name: ablation_prompts
+models:
+  - flan_t5_small
+prompt_versions:
+  - v1
+  - v2
+sampling:
+  n_samples_per_task: 15

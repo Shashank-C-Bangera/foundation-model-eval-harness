@@ -1,0 +1,36 @@
+seed: 42
+device: cpu
+tasks:
+  - classification
+  - summarization
+  - extraction
+prompt_versions:
+  - v1
+models:
+  - flan_t5_small
+datasets:
+  pubmedqa:
+    name: qiaojin/PubMedQA
+    subset: pqa_labeled
+  bc5cdr:
+    name: bigbio/bc5cdr
+    subset: bc5cdr_source
+sampling:
+  n_samples_per_task: 20
+generation:
+  temperature: 0.0
+  top_p: 1.0
+  max_new_tokens: 128
+paths:
+  data_parquet: data/processed/examples.parquet
+  data_jsonl: data/processed/examples.jsonl
+  runs_root: runs
+mlflow:
+  experiment_name: fmeh
+  tracking_uri: ""
+rag:
+  enabled: false
+  top_k: 3
+  embedding_model: sentence-transformers/all-MiniLM-L6-v2
+  index_path: data/processed/rag.index
+  passages_path: data/processed/rag_passages.parquet

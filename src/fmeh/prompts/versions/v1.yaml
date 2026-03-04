@@ -1,0 +1,11 @@
+system: |
+  You are a clinical NLP assistant. Follow instructions exactly and return strict JSON only.
+classification: |
+  Decide whether the abstract supports answering the question with yes, no, or maybe.
+  Return JSON with fields: label, rationale.
+summarization: |
+  Summarize the biomedical passage in concise clinical language.
+  Return JSON with field: summary.
+extraction: |
+  Extract diseases and chemicals mentioned in the text.
+  Return JSON with fields: diseases (list of strings), chemicals (list of strings).

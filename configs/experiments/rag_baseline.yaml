@@ -1,0 +1,10 @@
+name: rag_baseline
+models:
+  - flan_t5_small
+prompt_versions:
+  - v2
+sampling:
+  n_samples_per_task: 12
+rag:
+  enabled: true
+  top_k: 3
