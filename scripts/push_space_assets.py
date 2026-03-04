@@ -93,7 +93,8 @@ def main() -> None:
     if args.include_app_files:
         app_dir = Path("app")
         streamlit_dir = Path(".streamlit")
-        for p in [app_dir, streamlit_dir]:
+        ui_dir = Path("src/fmeh/ui")
+        for p in [app_dir, streamlit_dir, ui_dir]:
             if p.exists():
                 api.upload_folder(
                     repo_id=repo_id,
@@ -104,7 +105,13 @@ def main() -> None:
                 )
                 print(f"Uploaded folder to {repo_id}: {p}")
 
-        for p in [Path("app.py"), Path("README.md"), Path("requirements.txt"), Path("Dockerfile")]:
+        for p in [
+            Path("app.py"),
+            Path("README.md"),
+            Path("requirements.txt"),
+            Path("Dockerfile"),
+            Path("src/fmeh/__init__.py"),
+        ]:
             if p.exists():
                 api.upload_file(
                     repo_id=repo_id,
