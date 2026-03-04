@@ -6,7 +6,7 @@ FMEH := $(VENV)/bin/fmeh
 STREAMLIT := $(VENV)/bin/streamlit
 EXP ?= baseline_models
 
-.PHONY: setup lint test data run report serve docker-build docker-run
+.PHONY: setup lint test data run report serve docker-build docker-run space-sync space-sync-all
 
 setup:
 	$(PYTHON) -m venv $(VENV)
@@ -32,10 +32,27 @@ report:
 	$(FMEH) report --run-dir runs/$(EXP)
 
 serve:
-	$(STREAMLIT) run app/streamlit_app.py
+	$(STREAMLIT) run app.py
 
 docker-build:
 	docker build -f docker/Dockerfile -t fmeh:latest .
 
 docker-run:
 	docker run --rm -p 8501:8501 -v $(PWD)/runs:/app/runs -v $(PWD)/data:/app/data fmeh:latest
+
+space-sync:
+	$(MAKE) data EXP=$(EXP)
+	$(MAKE) run EXP=$(EXP)
+	$(MAKE) report EXP=$(EXP)
+	$(PY) scripts/prepare_space_assets.py --experiments $(EXP)
+	$(PY) scripts/push_space_assets.py
+
+space-sync-all:
+	$(MAKE) data EXP=baseline_models
+	$(MAKE) run EXP=baseline_models
+	$(MAKE) report EXP=baseline_models
+	$(MAKE) data EXP=rag_baseline
+	$(MAKE) run EXP=rag_baseline
+	$(MAKE) report EXP=rag_baseline
+	$(PY) scripts/prepare_space_assets.py --experiments baseline_models rag_baseline smoke_ci
+	$(PY) scripts/push_space_assets.py

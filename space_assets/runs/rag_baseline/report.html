@@ -1,0 +1,208 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>FMEH Report</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 24px; }
+    table { border-collapse: collapse; width: 100%; margin-bottom: 24px; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 13px; }
+    th { background: #f5f5f5; }
+    img { max-width: 100%; margin-bottom: 16px; }
+    pre { white-space: pre-wrap; background: #fafafa; padding: 8px; border: 1px solid #eee; }
+  </style>
+</head>
+<body>
+  <h1>Foundation Model Eval Harness Report</h1>
+  <h2>Aggregate Metrics (task × model × prompt_version)</h2>
+  <table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>task</th>
+      <th>model_id</th>
+      <th>prompt_version</th>
+      <th>metric_parse_valid</th>
+      <th>metric_retrieval_recall_proxy</th>
+      <th>metric_accuracy</th>
+      <th>metric_macro_f1_single</th>
+      <th>metric_rougeL</th>
+      <th>metric_bertscore_f1</th>
+      <th>metric_pred_length</th>
+      <th>metric_compression_ratio</th>
+      <th>metric_unsupported_claim_proxy</th>
+      <th>metric_precision</th>
+      <th>metric_recall</th>
+      <th>metric_f1</th>
+      <th>metric_exact_match</th>
+      <th>latency_sec</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>classification</td>
+      <td>flan_t5_small</td>
+      <td>v2</td>
+      <td>1.0000</td>
+      <td>1.0000</td>
+      <td>0.8333</td>
+      <td>0.2778</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.2715</td>
+    </tr>
+    <tr>
+      <td>extraction</td>
+      <td>flan_t5_small</td>
+      <td>v2</td>
+      <td>0.0000</td>
+      <td>0.0853</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+      <td>0.1667</td>
+      <td>0.2880</td>
+    </tr>
+    <tr>
+      <td>summarization</td>
+      <td>flan_t5_small</td>
+      <td>v2</td>
+      <td>1.0000</td>
+      <td>1.0000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.1772</td>
+      <td>0.7870</td>
+      <td>22.0000</td>
+      <td>0.0893</td>
+      <td>0.1133</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.4946</td>
+    </tr>
+  </tbody>
+</table>
+
+  <h2>Parse Error Analysis</h2>
+  <table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>parse_error</th>
+      <th>count</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Expecting value: line 1 column 1 (char 0)</td>
+      <td>12</td>
+    </tr>
+  </tbody>
+</table>
+
+  <h2>Plots</h2>
+  
+    <h3>parse_valid_rate.png</h3>
+    <img src="artifacts/parse_valid_rate.png" alt="parse_valid_rate.png" />
+  
+    <h3>accuracy.png</h3>
+    <img src="artifacts/accuracy.png" alt="accuracy.png" />
+  
+    <h3>extraction_f1.png</h3>
+    <img src="artifacts/extraction_f1.png" alt="extraction_f1.png" />
+  
+    <h3>rougeL.png</h3>
+    <img src="artifacts/rougeL.png" alt="rougeL.png" />
+  
+    <h3>classification_confusion_matrix.png</h3>
+    <img src="artifacts/classification_confusion_matrix.png" alt="classification_confusion_matrix.png" />
+  
+
+  <h2>Top Failures</h2>
+  
+    <h3>extraction | flan_t5_small | v2 | bc5cdr:None:extraction</h3>
+    <strong>Parse error:</strong> Expecting value: line 1 column 1 (char 0)
+    <h4>Input</h4>
+    <pre>The influence of d-ribose on adriamycin - induced myocardiopathy in rats was studied .</pre>
+    <h4>Raw output</h4>
+    <pre>%) were matched to five patients without WD.</pre>
+  
+    <h3>extraction | flan_t5_small | v2 | bc5cdr:None:extraction</h3>
+    <strong>Parse error:</strong> Expecting value: line 1 column 1 (char 0)
+    <h4>Input</h4>
+    <pre>The improvement in GFR was not associated with enhanced glomerular hypertrophy or increased segmental glomerulosclerosis , tubulointerstitial injury , or renal cortical malondialdehyde content .</pre>
+    <h4>Raw output</h4>
+    <pre>SUMMARY OF APPLICATIONS</pre>
+  
+    <h3>extraction | flan_t5_small | v2 | bc5cdr:None:extraction</h3>
+    <strong>Parse error:</strong> Expecting value: line 1 column 1 (char 0)
+    <h4>Input</h4>
+    <pre>Although much has been written about the management of the more common adverse effects of lithium , such as polyuria and tremor , more subtle lithium side effects such as cognitive deficits , loss of creativity , and functional impairments remain understudied .</pre>
+    <h4>Raw output</h4>
+    <pre>no</pre>
+  
+    <h3>extraction | flan_t5_small | v2 | bc5cdr:None:extraction</h3>
+    <strong>Parse error:</strong> Expecting value: line 1 column 1 (char 0)
+    <h4>Input</h4>
+    <pre>When the carbamazepine was discontinued , two of the children returned to their former state very quickly , two had the minor motor seizures resolve in 3 and 6 months , and one had the seizures persist .</pre>
+    <h4>Raw output</h4>
+    <pre>Symptom Checklist 90-R Obsessive-Compulsive subscale</pre>
+  
+    <h3>extraction | flan_t5_small | v2 | bc5cdr:None:extraction</h3>
+    <strong>Parse error:</strong> Expecting value: line 1 column 1 (char 0)
+    <h4>Input</h4>
+    <pre>Dose - effect and structure - function relationships in doxorubicin cardiomyopathy .</pre>
+    <h4>Raw output</h4>
+    <pre>extracorporeal circulation to be treated.</pre>
+  
+    <h3>extraction | flan_t5_small | v2 | bc5cdr:None:extraction</h3>
+    <strong>Parse error:</strong> Expecting value: line 1 column 1 (char 0)
+    <h4>Input</h4>
+    <pre>All the complaints disappeared after stopping pegylated interferon alpha-2b</pre>
+    <h4>Raw output</h4>
+    <pre>a holmium laser enucleation of the prostate</pre>
+  
+    <h3>extraction | flan_t5_small | v2 | bc5cdr:None:extraction</h3>
+    <strong>Parse error:</strong> Expecting value: line 1 column 1 (char 0)
+    <h4>Input</h4>
+    <pre>Studies were also conducted in renal epithelial LLC - PK1 cells and in mitochondria isolated from kidneys of all the experimental groups .</pre>
+    <h4>Raw output</h4>
+    <pre>ARDS is developed.</pre>
+  
+    <h3>extraction | flan_t5_small | v2 | bc5cdr:None:extraction</h3>
+    <strong>Parse error:</strong> Expecting value: line 1 column 1 (char 0)
+    <h4>Input</h4>
+    <pre>In particular , the tendency of cocaine to produce chest pain ought to be in the mind of the emergency nurse when faced with a young victim of chest pain who is otherwise at low risk .</pre>
+    <h4>Raw output</h4>
+    <pre>deaths, undetermined deaths, and homicide) are the major cause of death among young men aged 15-39 years in England and Wales and have been increasing in recent years.AIM: To describe common characteristics among young men who die from injury and poisoning.</pre>
+  
+    <h3>extraction | flan_t5_small | v2 | bc5cdr:None:extraction</h3>
+    <strong>Parse error:</strong> Expecting value: line 1 column 1 (char 0)
+    <h4>Input</h4>
+    <pre>24 ), indicating a complete spasm at the level of the sphincter of Oddi .</pre>
+    <h4>Raw output</h4>
+    <pre>SUMMARY OF APPLICATIONS</pre>
+  
+    <h3>extraction | flan_t5_small | v2 | bc5cdr:None:extraction</h3>
+    <strong>Parse error:</strong> Expecting value: line 1 column 1 (char 0)
+    <h4>Input</h4>
+    <pre>Clinical and laboratory evaluations were performed at 3 - week intervals .</pre>
+    <h4>Raw output</h4>
+    <pre>a holmium laser enucleation of the prostate</pre>
+  
+</body>
+</html>

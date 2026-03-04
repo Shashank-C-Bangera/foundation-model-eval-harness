@@ -78,7 +78,7 @@ def run_experiment(
 
     retriever = None
     if cfg.rag.enabled:
-        rag_source = sampled_df[["id", "input"]].rename(columns={"id": "example_id"})
+        rag_source = sampled_df[["id", "task", "input"]].rename(columns={"id": "example_id"})
         if not Path(cfg.rag.index_path).exists() or not Path(cfg.rag.passages_path).exists():
             console.print("RAG enabled. Building index...")
             build_index(cfg, rag_source)

@@ -1,0 +1,134 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>FMEH Report</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 24px; }
+    table { border-collapse: collapse; width: 100%; margin-bottom: 24px; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 13px; }
+    th { background: #f5f5f5; }
+    img { max-width: 100%; margin-bottom: 16px; }
+    pre { white-space: pre-wrap; background: #fafafa; padding: 8px; border: 1px solid #eee; }
+  </style>
+</head>
+<body>
+  <h1>Foundation Model Eval Harness Report</h1>
+  <h2>Aggregate Metrics (task × model × prompt_version)</h2>
+  <table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>task</th>
+      <th>model_id</th>
+      <th>prompt_version</th>
+      <th>metric_parse_valid</th>
+      <th>metric_accuracy</th>
+      <th>metric_macro_f1_single</th>
+      <th>metric_precision</th>
+      <th>metric_recall</th>
+      <th>metric_f1</th>
+      <th>metric_exact_match</th>
+      <th>latency_sec</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>classification</td>
+      <td>mock_json</td>
+      <td>v1</td>
+      <td>1.0000</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.0000</td>
+    </tr>
+    <tr>
+      <td>extraction</td>
+      <td>mock_json</td>
+      <td>v1</td>
+      <td>1.0000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+    </tr>
+    <tr>
+      <td>summarization</td>
+      <td>mock_json</td>
+      <td>v1</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.0000</td>
+    </tr>
+  </tbody>
+</table>
+
+  <h2>Parse Error Analysis</h2>
+  <table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>parse_error</th>
+      <th>count</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td></td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+
+  <h2>Plots</h2>
+  
+    <h3>parse_valid_rate.png</h3>
+    <img src="artifacts/parse_valid_rate.png" alt="parse_valid_rate.png" />
+  
+    <h3>accuracy.png</h3>
+    <img src="artifacts/accuracy.png" alt="accuracy.png" />
+  
+    <h3>extraction_f1.png</h3>
+    <img src="artifacts/extraction_f1.png" alt="extraction_f1.png" />
+  
+    <h3>classification_confusion_matrix.png</h3>
+    <img src="artifacts/classification_confusion_matrix.png" alt="classification_confusion_matrix.png" />
+  
+
+  <h2>Top Failures</h2>
+  
+    <h3>classification | mock_json | v1 | pubmedqa:26348845:classification</h3>
+    <strong>Parse error:</strong> 
+    <h4>Input</h4>
+    <pre>Question: Pap smears with glandular cell abnormalities: Are they detected by rapid prescreening?
+
+Abstract: ['Rapid prescreening (RPS) is one of the quality assurance (QA) methods used in gynecologic cytology. The efficacy of RPS has been previously studied but mostly with respect to squamous lesions; in fact, there has been no study so far specifically looking at the sensitivity of RPS for detecting glandular cell abnormalities.', 'A total of 80,565 Papanicolaou (Pap) smears underwent RPS during a 25-month period. A sample was designated as "review for abnormality" (R) if any abnormal cells (at the threshold of atypical squamous cells of undetermined significance/atypical glandular cells [AGC]) were thought to be present or was designated as negative (N) if none were detected. Each sample then underwent full screening (FS) and was designated as either R or N and also given a cytologic interpretation.', 'The final cytologic interpretation was a glandular cell abnormality (≥AGC) in 107 samples (0.13%); 39 of these (36.4%) were flagged as R on RPS. Twenty-four patients (33.8%) out of 71 who had histologic follow-up were found to harbor a high-grade squamous intraepithelial lesion or carcinoma; 13 of those 24 Pap smears (54.2%) had been flagged as R on RPS. Notably, 11 AGC cases were picked up by RPS only and not by FS and represented false-negative cases; 2 of these showed endometrial adenocarcinoma on histologic follow-up.'] ['BACKGROUND', 'METHODS', 'RESULTS'] ['Adenocarcinoma', 'Adult', 'Aged', 'Aged, 80 and over', 'Female', 'Humans', 'Mass Screening', 'Middle Aged', 'Papanicolaou Test', 'Sensitivity and Specificity', 'Uterine Cervical Neoplasms', 'Vaginal Smears', 'Young Adult'] ['y', 'e', 's'] ['y', 'e', 's']</pre>
+    <h4>Raw output</h4>
+    <pre>{"label": "maybe", "rationale": "insufficient explicit evidence"}</pre>
+  
+    <h3>extraction | mock_json | v1 | synthetic:1:extraction</h3>
+    <strong>Parse error:</strong> 
+    <h4>Input</h4>
+    <pre>The patient had diabetes and was treated with metformin.</pre>
+    <h4>Raw output</h4>
+    <pre>{"diseases": ["cancer"], "chemicals": ["aspirin"]}</pre>
+  
+    <h3>summarization | mock_json | v1 | pubmedqa:26348845:summarization</h3>
+    <strong>Parse error:</strong> 
+    <h4>Input</h4>
+    <pre>['Rapid prescreening (RPS) is one of the quality assurance (QA) methods used in gynecologic cytology. The efficacy of RPS has been previously studied but mostly with respect to squamous lesions; in fact, there has been no study so far specifically looking at the sensitivity of RPS for detecting glandular cell abnormalities.', 'A total of 80,565 Papanicolaou (Pap) smears underwent RPS during a 25-month period. A sample was designated as "review for abnormality" (R) if any abnormal cells (at the threshold of atypical squamous cells of undetermined significance/atypical glandular cells [AGC]) were thought to be present or was designated as negative (N) if none were detected. Each sample then underwent full screening (FS) and was designated as either R or N and also given a cytologic interpretation.', 'The final cytologic interpretation was a glandular cell abnormality (≥AGC) in 107 samples (0.13%); 39 of these (36.4%) were flagged as R on RPS. Twenty-four patients (33.8%) out of 71 who had histologic follow-up were found to harbor a high-grade squamous intraepithelial lesion or carcinoma; 13 of those 24 Pap smears (54.2%) had been flagged as R on RPS. Notably, 11 AGC cases were picked up by RPS only and not by FS and represented false-negative cases; 2 of these showed endometrial adenocarcinoma on histologic follow-up.'] ['BACKGROUND', 'METHODS', 'RESULTS'] ['Adenocarcinoma', 'Adult', 'Aged', 'Aged, 80 and over', 'Female', 'Humans', 'Mass Screening', 'Middle Aged', 'Papanicolaou Test', 'Sensitivity and Specificity', 'Uterine Cervical Neoplasms', 'Vaginal Smears', 'Young Adult'] ['y', 'e', 's'] ['y', 'e', 's']</pre>
+    <h4>Raw output</h4>
+    <pre></pre>
+  
+</body>
+</html>

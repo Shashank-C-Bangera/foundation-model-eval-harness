@@ -1,6 +1,49 @@
+---
+title: Foundation Model Eval Dashboard
+emoji: 📊
+colorFrom: indigo
+colorTo: blue
+sdk: streamlit
+sdk_version: "1.40.0"
+app_file: app.py
+pinned: false
+---
+
 # foundation-model-eval-harness
 
 Config-driven evaluation harness for foundation models on biomedical downstream tasks, with strict structured outputs, experiment tracking, reproducible runs, and a browsable results UI.
+
+## Dashboard (Hugging Face Space)
+
+The Streamlit dashboard shows:
+
+- Leaderboard metrics by task, model, and prompt version
+- Parse-validity and latency trends from run artifacts
+- Sample-level rows and qualitative examples (input/output/parsed metrics)
+
+Demo data for Space startup is bundled in:
+
+- `space_assets/runs/baseline_models/`
+- `space_assets/runs/rag_baseline/`
+- `space_assets/runs/smoke_ci/`
+
+Run-selection behavior:
+
+- Prefer `baseline_models` if available
+- Else prefer `rag_baseline`
+- Else prefer `smoke_ci`
+- Else choose the newest discovered run
+
+The dashboard searches run artifacts in both:
+
+- `./runs`
+- `./space_assets/runs`
+
+Local dashboard run:
+
+```bash
+python -m streamlit run app.py
+```
 
 ## What This Solves
 
@@ -61,7 +104,7 @@ graph TD
 ### Datasets
 
 - `qiaojin/PubMedQA` (`pqa_labeled`) for classification + summarization-style inputs
-- `bigbio/bc5cdr` (`bc5cdr_source`) for extraction (diseases, chemicals)
+- `cvlt-mao/bc5cdr` for extraction (diseases, chemicals)
 
 ### Metrics
 

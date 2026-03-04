@@ -1,0 +1,364 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>FMEH Report</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 24px; }
+    table { border-collapse: collapse; width: 100%; margin-bottom: 24px; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 13px; }
+    th { background: #f5f5f5; }
+    img { max-width: 100%; margin-bottom: 16px; }
+    pre { white-space: pre-wrap; background: #fafafa; padding: 8px; border: 1px solid #eee; }
+  </style>
+</head>
+<body>
+  <h1>Foundation Model Eval Harness Report</h1>
+  <h2>Aggregate Metrics (task × model × prompt_version)</h2>
+  <table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>task</th>
+      <th>model_id</th>
+      <th>prompt_version</th>
+      <th>metric_parse_valid</th>
+      <th>metric_accuracy</th>
+      <th>metric_macro_f1_single</th>
+      <th>metric_rougeL</th>
+      <th>metric_bertscore_f1</th>
+      <th>metric_pred_length</th>
+      <th>metric_compression_ratio</th>
+      <th>metric_unsupported_claim_proxy</th>
+      <th>metric_precision</th>
+      <th>metric_recall</th>
+      <th>metric_f1</th>
+      <th>metric_exact_match</th>
+      <th>latency_sec</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>classification</td>
+      <td>flan_t5_small</td>
+      <td>v2</td>
+      <td>1.0000</td>
+      <td>0.5100</td>
+      <td>0.1700</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.1260</td>
+    </tr>
+    <tr>
+      <td>classification</td>
+      <td>t5_small</td>
+      <td>v2</td>
+      <td>0.1800</td>
+      <td>0.1100</td>
+      <td>0.0367</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.6663</td>
+    </tr>
+    <tr>
+      <td>classification</td>
+      <td>tiny_gpt2</td>
+      <td>v2</td>
+      <td>0.0000</td>
+      <td>0.0400</td>
+      <td>0.0133</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.0388</td>
+    </tr>
+    <tr>
+      <td>extraction</td>
+      <td>flan_t5_small</td>
+      <td>v2</td>
+      <td>0.0000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+      <td>0.2400</td>
+      <td>0.0700</td>
+    </tr>
+    <tr>
+      <td>extraction</td>
+      <td>t5_small</td>
+      <td>v2</td>
+      <td>0.0200</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+      <td>0.2400</td>
+      <td>0.6031</td>
+    </tr>
+    <tr>
+      <td>extraction</td>
+      <td>tiny_gpt2</td>
+      <td>v2</td>
+      <td>0.0000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+      <td>0.2400</td>
+      <td>0.0350</td>
+    </tr>
+    <tr>
+      <td>summarization</td>
+      <td>flan_t5_small</td>
+      <td>v2</td>
+      <td>0.9400</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.1151</td>
+      <td>0.7266</td>
+      <td>12.3400</td>
+      <td>0.0505</td>
+      <td>0.8000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.3556</td>
+    </tr>
+    <tr>
+      <td>summarization</td>
+      <td>t5_small</td>
+      <td>v2</td>
+      <td>1.0000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.0732</td>
+      <td>0.6918</td>
+      <td>25.0600</td>
+      <td>0.1108</td>
+      <td>1.0000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.5417</td>
+    </tr>
+    <tr>
+      <td>summarization</td>
+      <td>tiny_gpt2</td>
+      <td>v2</td>
+      <td>1.0000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.0004</td>
+      <td>0.5893</td>
+      <td>64.0000</td>
+      <td>0.2829</td>
+      <td>1.0000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.0384</td>
+    </tr>
+  </tbody>
+</table>
+
+  <h2>Parse Error Analysis</h2>
+  <table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>parse_error</th>
+      <th>count</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Expecting value: line 1 column 1 (char 0)</td>
+      <td>274</td>
+    </tr>
+    <tr>
+      <td>empty output</td>
+      <td>53</td>
+    </tr>
+    <tr>
+      <td>Extra data: line 1 column 16 (char 15)</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>Extra data: line 1 column 50 (char 49)</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>Extra data: line 1 column 160 (char 159)</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>Extra data: line 1 column 5 (char 4)</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>Extra data: line 1 column 143 (char 142)</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>Extra data: line 1 column 3 (char 2)</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>Extra data: line 1 column 4 (char 3)</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+
+  <h2>Plots</h2>
+  
+    <h3>parse_valid_rate.png</h3>
+    <img src="artifacts/parse_valid_rate.png" alt="parse_valid_rate.png" />
+  
+    <h3>accuracy.png</h3>
+    <img src="artifacts/accuracy.png" alt="accuracy.png" />
+  
+    <h3>extraction_f1.png</h3>
+    <img src="artifacts/extraction_f1.png" alt="extraction_f1.png" />
+  
+    <h3>rougeL.png</h3>
+    <img src="artifacts/rougeL.png" alt="rougeL.png" />
+  
+    <h3>classification_confusion_matrix.png</h3>
+    <img src="artifacts/classification_confusion_matrix.png" alt="classification_confusion_matrix.png" />
+  
+
+  <h2>Top Failures</h2>
+  
+    <h3>classification | t5_small | v2 | pubmedqa:26348845:classification</h3>
+    <strong>Parse error:</strong> Expecting value: line 1 column 1 (char 0)
+    <h4>Input</h4>
+    <pre>Question: Pap smears with glandular cell abnormalities: Are they detected by rapid prescreening?
+
+Abstract: ['Rapid prescreening (RPS) is one of the quality assurance (QA) methods used in gynecologic cytology. The efficacy of RPS has been previously studied but mostly with respect to squamous lesions; in fact, there has been no study so far specifically looking at the sensitivity of RPS for detecting glandular cell abnormalities.', 'A total of 80,565 Papanicolaou (Pap) smears underwent RPS during a 25-month period. A sample was designated as "review for abnormality" (R) if any abnormal cells (at the threshold of atypical squamous cells of undetermined significance/atypical glandular cells [AGC]) were thought to be present or was designated as negative (N) if none were detected. Each sample then underwent full screening (FS) and was designated as either R or N and also given a cytologic interpretation.', 'The final cytologic interpretation was a glandular cell abnormality (≥AGC) in 107 samples (0.13%); 39 of these (36.4%) were flagged as R on RPS. Twenty-four patients (33.8%) out of 71 who had histologic follow-up were found to harbor a high-grade squamous intraepithelial lesion or carcinoma; 13 of those 24 Pap smears (54.2%) had been flagged as R on RPS. Notably, 11 AGC cases were picked up by RPS only and not by FS and represented false-negative cases; 2 of these showed endometrial adenocarcinoma on histologic follow-up.'] ['BACKGROUND', 'METHODS', 'RESULTS'] ['Adenocarcinoma', 'Adult', 'Aged', 'Aged, 80 and over', 'Female', 'Humans', 'Mass Screening', 'Middle Aged', 'Papanicolaou Test', 'Sensitivity and Specificity', 'Uterine Cervical Neoplasms', 'Vaginal Smears', 'Young Adult'] ['y', 'e', 's'] ['y', 'e', 's']</pre>
+    <h4>Raw output</h4>
+    <pre>Pap smears with glandular cell abnormalities: Are they detected by rapid prescreening? Abstract: ["BACKGROUND", "METHODS", "RESULTS"] ["Adenocarcinoma on histologic follow-up</pre>
+  
+    <h3>classification | t5_small | v2 | pubmedqa:26163474:classification</h3>
+    <strong>Parse error:</strong> Expecting value: line 1 column 1 (char 0)
+    <h4>Input</h4>
+    <pre>Question: Is there a connection between sublingual varices and hypertension?
+
+Abstract: ['Sublingual varices have earlier been related to ageing, smoking and cardiovascular disease. The aim of this study was to investigate whether sublingual varices are related to presence of hypertension.', "In an observational clinical study among 431 dental patients tongue status and blood pressure were documented. Digital photographs of the lateral borders of the tongue for grading of sublingual varices were taken, and blood pressure was measured. Those patients without previous diagnosis of hypertension and with a noted blood pressure ≥ 140 mmHg and/or ≥ 90 mmHg at the dental clinic performed complementary home blood pressure during one week. Those with an average home blood pressure ≥ 135 mmHg and/or ≥ 85 mmHg were referred to the primary health care centre, where three office blood pressure measurements were taken with one week intervals. Two independent blinded observers studied the photographs of the tongues. Each photograph was graded as none/few (grade 0) or medium/severe (grade 1) presence of sublingual varices. Pearson's Chi-square test, Student's t-test, and multiple regression analysis were applied. Power calculation stipulated a study population of 323 patients.", 'An association between sublingual varices and hypertension was found (OR = 2.25, p<0.002). Mean systolic blood pressure was 123 and 132 mmHg in patients with grade 0 and grade 1 sublingual varices, respectively (p<0.0001, CI 95 %). Mean diastolic blood pressure was 80 and 83 mmHg in patients with grade 0 and grade 1 sublingual varices, respectively (p<0.005, CI 95 %). Sublingual varices indicate hypertension with a positive predictive value of 0.5 and a negative predictive value of 0.80.'] ['BACKGROUND', 'METHODS', 'RESULTS'] ['Adult', 'Aged', 'Angina Pectoris', 'Atrial Fibrillation', 'Blood Pressure', 'Female', 'Humans', 'Hypertension', 'Image Processing, Computer-Assisted', 'Male', 'Middle Aged', 'Myocardial Infarction', 'Myocardial Ischemia', 'Photography', 'Predictive Value of Tests', 'Sensitivity and Specificity', 'Smoking', 'Stroke', 'Tongue', 'Varicose Veins'] ['y', 'e', 's'] ['y', 'e', 's']</pre>
+    <h4>Raw output</h4>
+    <pre>, p0.002, CI 95 %). Sublingual varices indicate hypertension with a positive predictive value of 0.5 and a negative predictive value of 0.80. ["BACKGROUND", "METHODS", "BACKGROUND",</pre>
+  
+    <h3>classification | t5_small | v2 | pubmedqa:24374414:classification</h3>
+    <strong>Parse error:</strong> Expecting value: line 1 column 1 (char 0)
+    <h4>Input</h4>
+    <pre>Question: Does health information exchange reduce redundant imaging?
+
+Abstract: ["Broad-based electronic health information exchange (HIE), in which patients' clinical data follow them between care delivery settings, is expected to produce large quality gains and cost savings. Although these benefits are assumed to result from reducing redundant care, there is limited supporting empirical evidence.", 'To evaluate whether HIE adoption is associated with decreases in repeat imaging in emergency departments (EDs).DATA SOURCE/', 'ED discharge data from the State Emergency Department Databases for California and Florida for 2007-2010 were merged with Health Information Management Systems Society data that report hospital HIE participation.', 'Using regression with ED fixed effects and trends, we performed a retrospective analysis of the impact of HIE participation on repeat imaging, comparing 37 EDs that initiated HIE participation during the study period to 410 EDs that did not participate in HIE during the same period. Within 3 common types of imaging tests [computed tomography (CT), ultrasound, and chest x-ray), we defined a repeat image for a given patient as the same study in the same body region performed within 30 days at unaffiliated EDs.', 'In our sample there were 20,139 repeat CTs (representing 14.7% of those cases with CT in the index visit), 13,060 repeat ultrasounds (20.7% of ultrasound cases), and 29,703 repeat chest x-rays (19.5% of x-ray cases). HIE was associated with reduced probability of repeat ED imaging in all 3 modalities: -8.7 percentage points for CT [95% confidence interval (CI): -14.7, -2.7], -9.1 percentage points for ultrasound (95% CI: -17.2, -1.1), and -13.0 percentage points for chest x-ray (95% CI: -18.3, -7.7), reflecting reductions of 44%-67% relative to sample means.'] ['BACKGROUND', 'OBJECTIVE', 'STUDY SETTING', 'METHODS', 'RESULTS'] ['Adult', 'Age Factors', 'California', 'Continuity of Patient Care', 'Diagnostic Imaging', 'Electronic Health Records', 'Emergency Service, Hospital', 'Female', 'Florida', 'Humans', 'Male', 'Middle Aged', 'Retrospective Studies', 'Sex Factors', 'Socioeconomic Factors'] ['y', 'e', 's'] ['y', 'e', 's']</pre>
+    <h4>Raw output</h4>
+    <pre>: Does health information exchange reduce redundant imaging? Abstract: ["BACKGROUND", "OBJECT", "OBJECT", "OBJECT", "BACKGROUND", "OBJECT", "OBJECT",</pre>
+  
+    <h3>classification | t5_small | v2 | pubmedqa:18507507:classification</h3>
+    <strong>Parse error:</strong> Expecting value: line 1 column 1 (char 0)
+    <h4>Input</h4>
+    <pre>Question: The promise of specialty pharmaceuticals: are they worth the price?
+
+Abstract: ['Specialty pharmaceuticals have evolved beyond their status as niche drugs designed to treat rare conditions and are now poised to become the standard of care in a wide variety of common chronic illnesses. Due in part to the cost of these therapies, payers are increasingly demanding evidence of their value. Determining the value of these medications is hampered by a lack of robust pharmacoeconomic data.', 'To outline emerging strategies and case study examples for the medical and pharmacy benefits management of specialty pharmaceuticals.', 'The promise of specialty pharmaceuticals: increased life expectancy, improved quality of life, enhanced workplace productivity, decreased burden of disease, and reduced health care spending comes at a significant cost. These agents require special handling, administration, patient education, clinical support, and risk mitigation. Additionally, specialty drugs require distribution systems that ensure appropriate patient selection and data collection. With the specialty pharmaceutical pipeline overflowing with new medicines and an aging population increasingly relying on these novel treatments to treat common diseases, the challenge of managing the costs associated with these agents can be daunting. Aided by sophisticated pharmacoeconomic models to assess value, the cost impacts of these specialty drugs can be appropriately controlled.'] ['BACKGROUND', 'OBJECTIVE', 'SUMMARY'] ['Chronic Disease', 'Drug Costs', 'Humans', 'Managed Care Programs', 'Pharmaceutical Preparations', 'Rare Diseases', 'United States'] ['m', 'a', 'y', 'b', 'e'] ['y', 'e', 's']</pre>
+    <h4>Raw output</h4>
+    <pre>:: - Return exactly one JSON object. - Do not echo the prompt or schema. - Do not echo the prompt or schema. "BACKGROUND", "OBJECTIVE", "SUMMARY"] ["Chronic Disease",</pre>
+  
+    <h3>classification | t5_small | v2 | pubmedqa:23495128:classification</h3>
+    <strong>Parse error:</strong> Expecting value: line 1 column 1 (char 0)
+    <h4>Input</h4>
+    <pre>Question: The colour of pain: can patients use colour to describe osteoarthritis pain?
+
+Abstract: ["The aim of the present study was to explore patients' views on the acceptability and feasibility of using colour to describe osteoarthritis (OA) pain, and whether colour could be used to communicate pain to healthcare professionals.", 'Six group interviews were conducted with 17 patients with knee OA. Discussion topics included first impressions about using colour to describe pain, whether participants could associate their pain with colour, how colours related to changes to intensity and different pain qualities, and whether they could envisage using colour to describe pain to healthcare professionals.', 'The group interviews indicated that, although the idea of using colour was generally acceptable, it did not suit all participants as a way of describing their pain. The majority of participants chose red to describe high-intensity pain; the reasons given were because red symbolized inflammation, fire, anger and the stop signal in a traffic light system. Colours used to describe the absence of pain were chosen because of their association with positive emotional feelings, such as purity, calmness and happiness. A range of colours was chosen to represent changes in pain intensity. Aching pain was consistently identified as being associated with colours such as grey or black, whereas sharp pain was described using a wider selection of colours. The majority of participants thought that they would be able to use colour to describe their pain to healthcare professionals, although issues around the interpretability and standardization of colour were raised.'] ['OBJECTIVE', 'METHODS', 'RESULTS'] ['Aged', 'Aged, 80 and over', 'Color', 'Communication', 'Feasibility Studies', 'Female', 'Humans', 'Interviews as Topic', 'Male', 'Middle Aged', 'Nurse-Patient Relations', 'Osteoarthritis, Knee', 'Pain Measurement', 'Physician-Patient Relations'] ['y', 'e', 's'] ['y', 'e', 's']</pre>
+    <h4>Raw output</h4>
+    <pre>: The colour of pain: can patients use colour to describe osteoarthritis pain? Abstract: ["The aim of the present study was to explore patients" views on the acceptability and feasibility of using colour to describe pain.</pre>
+  
+    <h3>classification | t5_small | v2 | pubmedqa:12163782:classification</h3>
+    <strong>Parse error:</strong> Expecting value: line 1 column 1 (char 0)
+    <h4>Input</h4>
+    <pre>Question: Increased neutrophil migratory activity after major trauma: a factor in the etiology of acute respiratory distress syndrome?
+
+Abstract: ['Neutrophil infiltration of the lung is characteristic of early posttraumatic acute respiratory distress syndrome (ARDS). This study examines the ability of neutrophils isolated (over the first 24 hrs) from the peripheral blood of patients admitted after major trauma to migrate in response to interleukin-8. Interleukin-8 is elevated in the lung within 2 hrs of major trauma in patients who later develop ARDS, and thus it plays a central role in the recruitment of neutrophils to the lung and their subsequent activation. We hypothesized that enhanced interleukin-8-mediated neutrophil migratory activity in the early postinjury phase, before the development of ARDS, may be a crucial factor in the etiology of ARDS.', 'Prospective observational study.', 'University Hospital Wales, the Royal Gwent Hospital, and East Glamorgan General Hospital. Laboratory work was conducted at the Institute of Nephrology.', 'Adult blunt trauma victims with Injury Severity Score>or = 18.', "Neutrophils were isolated from citrated blood from 17 adult blunt major trauma patients at admission (0 hrs) and 8 and 24 hrs later. Identical samples were obtained from normal laboratory volunteers (n = 9). The neutrophil count in each specimen was measured, and the number of neutrophils migrating across porous tissue culture inserts in response to defined concentrations of interleukin-8 (0, 10, 30, and 100 ng/mL) was quantitated by peroxidase assay. Neutrophil counts in the whole blood specimens obtained from those later developing ARDS were elevated significantly at admission and declined rapidly throughout the next 24 hrs. Significantly greater numbers of trauma patients' neutrophils migrated to concentrations of interleukin-8 (30 and 100 ng/mL) at each time point when compared with normal volunteers (Mann-Whitney U test, p<.05). Neutrophils isolated from major trauma patients exhibited an enhanced migratory response to high concentrations of interleukin-8 throughout the first 24 hrs of admission, in contrast to the normal physiologic attenuation of migration seen in neutrophils isolated from normal laboratory volunteers."] ['OBJECTIVE', 'DESIGN', 'SETTING', 'PATIENTS', 'MEASUREMENTS AND MAIN RESULTS'] ['Acute Disease', 'Adult', 'Cell Movement', 'Humans', 'Interleukin-8', 'Leukocyte Count', 'Neutrophil Infiltration', 'Neutrophils', 'Prospective Studies', 'Respiratory Distress Syndrome, Adult', 'Risk Factors', 'Time Factors', 'Trauma Severity Indices', 'Wales', 'Wounds, Nonpenetrating'] ['y', 'e', 's'] ['y', 'e', 's']</pre>
+    <h4>Raw output</h4>
+    <pre>compared to the ARDS patients.: migratory activity after major trauma was a factor in the etiology of acute respiratory distress syndrome? Abstract: ["Neutrophil infiltration of the lung is characteristic of early posttraumatic acute respiratory distress syndrome (ARDS)</pre>
+  
+    <h3>classification | t5_small | v2 | pubmedqa:9582182:classification</h3>
+    <strong>Parse error:</strong> Expecting value: line 1 column 1 (char 0)
+    <h4>Input</h4>
+    <pre>Question: Does the SCL 90-R obsessive-compulsive dimension identify cognitive impairments?
+
+Abstract: ['To investigate the relevance of the Symptom Checklist 90-R Obsessive-Compulsive subscale to cognition in individuals with brain tumor.', 'A prospective study of patients assessed with a neuropsychological test battery.', 'A university medical center.', 'Nineteen adults with biopsy-confirmed diagnoses of malignant brain tumors were assessed prior to aggressive chemotherapy.', 'Included in the assessment were the Mattis Dementia Rating Scale, California Verbal Learning Test, Trail Making Test B, Symptom Checklist 90-R, Mood Assessment Scale, Beck Anxiety Inventory, and Chronic Illness Problem Inventory.', 'The SCL 90-R Obsessive-Compulsive subscale was not related to objective measures of attention, verbal memory, or age. It was related significantly to symptoms of depression (r = .81, P<.005), anxiety (r = .66, P<.005), and subjective complaints of memory problems (r = .75, P<.005). Multivariate analyses indicated that reported symptoms of depression contributed 66% of the variance in predicting SCL 90-R Obsessive-Compulsive Scores, whereas symptoms of anxiety contributed an additional 6% (P<.0001).'] ['OBJECTIVE', 'DESIGN', 'SETTING', 'PATIENTS', 'MAIN OUTCOME MEASURES', 'RESULTS'] ['Adult', 'Aged', 'Brain Neoplasms', 'Cognition Disorders', 'Female', 'Humans', 'Male', 'Middle Aged', 'Multivariate Analysis', 'Neuropsychological Tests', 'Obsessive-Compulsive Disorder', 'Personality Assessment', 'Predictive Value of Tests', 'Prospective Studies', 'Sensitivity and Specificity'] ['n', 'o'] ['y', 'e', 's']</pre>
+    <h4>Raw output</h4>
+    <pre>: Does the SCL 90-R obsessive dimension identify cognitive impairments? Abstract: ["To investigate the relevance of the Symptom Checklist 90-R Obsessive-Compulsive subscale to cognition in individuals with brain tumor"</pre>
+  
+    <h3>classification | t5_small | v2 | pubmedqa:25588461:classification</h3>
+    <strong>Parse error:</strong> Expecting value: line 1 column 1 (char 0)
+    <h4>Input</h4>
+    <pre>Question: Can transcranial direct current stimulation be useful in differentiating unresponsive wakefulness syndrome from minimally conscious state patients?
+
+Abstract: ['Disorders of consciousness (DOC) diagnosis relies on the presence or absence of purposeful motor responsiveness, which characterizes the minimally conscious state (MCS) and the unresponsive wakefulness syndrome (UWS), respectively. Functional neuroimaging studies have raised the question of possible residual conscious awareness also in clinically-defined UWS patients. The aim of our study was to identify electrophysiological parameters, by means of a transcranial magnetic stimulation approach, which might potentially express the presence of residual networks sustaining fragmentary behavioral patterns, even when no conscious behavior can be observed.', 'We enrolled 25 severe DOC patients, following post-anoxic or traumatic brain injury and 20 healthy individuals (HC) as control group. Baseline electrophysiological evaluation evidenced, in comparison to HC, a partial preservation of cortical effective connectivity and excitability in clinically defined MCS, whereas these components were absent in clinically defined UWS. Then, we applied an anodal transcranial direct current stimulation (a-tDCS) protocol over the orbitofrontal cortex.', 'a-tDCS was able to boost cortical connectivity and excitability in all HC, MCS, and to unmask such excitability/connectivity in some UWS patients.'] ['PURPOSE', 'METHODS', 'RESULT'] ['Adult', 'Aged', 'Consciousness Disorders', 'Diagnosis, Differential', 'Female', 'Humans', 'Male', 'Middle Aged', 'Neural Pathways', 'Persistent Vegetative State', 'Prefrontal Cortex', 'Transcranial Direct Current Stimulation'] ['y', 'e', 's'] ['y', 'e', 's']</pre>
+    <h4>Raw output</h4>
+    <pre>: "Do not output prose outside JSON."] ["PURPOSE", "METHODS", "RESULT"] ["Adult", "Aged", "Consciousness Disorders", "Per</pre>
+  
+    <h3>classification | t5_small | v2 | pubmedqa:23453079:classification</h3>
+    <strong>Parse error:</strong> Expecting value: line 1 column 1 (char 0)
+    <h4>Input</h4>
+    <pre>Question: Does prostate morphology affect outcomes after holmium laser enucleation?
+
+Abstract: ['To determine whether prostate morphology or technique used has any effect on postoperative outcomes after holmium laser enucleation of the prostate.', 'A retrospective review of prospectively collected data was completed for all patients undergoing a holmium laser enucleation of the prostate at our institution. Prostate morphology was classified as either "bilobar" or "trilobar" according to the cystoscopic appearance. The baseline characteristics, complications, and postoperative outcomes were collected.', 'A total of 304 patients with either "bilobar" (n\xa0= 142) or "trilobar" (n\xa0= 162) prostate morphology were included. The trilobar group was more likely to have longer operative times (112 vs 100 minutes, P\xa0= .04), although this difference was not significant on multivariate analysis. The postoperative outcomes were similar between the 2 groups for American Urological Association symptom score, change in American Urological Association symptom score, bother score, maximal flow rate, change in maximal flow rate, postvoid residual urine volume, and complication rate. However, the trilobar group had a significantly greater decrease in their PVR urine volume (296 vs 176 mL, P\xa0= .01), a difference that persisted on multivariate analysis. A subset analysis of the trilobar prostates revealed that performing a 2-lobe technique achieved shorter operative and enucleation times, although the difference was not significant.'] ['OBJECTIVE', 'MATERIALS AND METHODS', 'RESULTS'] ['Aged', 'Humans', 'Laser Therapy', 'Lasers, Solid-State', 'Male', 'Middle Aged', 'Prostate', 'Prostatectomy', 'Prostatic Hyperplasia', 'Retrospective Studies', 'Treatment Outcome'] ['y', 'e', 's'] ['y', 'e', 's']</pre>
+    <h4>Raw output</h4>
+    <pre>: Does prostate morphology affect outcomes after holmium laser enucleation? Abstract: [To determine whether prostate morphology or technique used has any effect on outcomes after holmium laser enucleation?"</pre>
+  
+    <h3>classification | t5_small | v2 | pubmedqa:21084567:classification</h3>
+    <strong>Parse error:</strong> Expecting value: line 1 column 1 (char 0)
+    <h4>Input</h4>
+    <pre>Question: Are stroke patients' reports of home blood pressure readings reliable?
+
+Abstract: ["Home blood pressure (BP) monitoring is gaining increasing popularity among patients and may be useful in hypertension management. Little is known about the reliability of stroke patients' records of home BP monitoring.", 'To assess the reliability of home BP recording in hypertensive patients who had suffered a recent stroke or transient ischaemic attack.', 'Thirty-nine stroke patients (mean age 73 years) randomized to the intervention arm of a trial of home BP monitoring were included. Following instruction by a research nurse, patients recorded their BPs at home and documented them in a booklet over the next year. The booklet readings over a month were compared with the actual readings downloaded from the BP monitor and were checked for errors or selective bias in recording.', 'A total of 1027 monitor and 716 booklet readings were recorded. Ninety per cent of booklet recordings were exactly the same as the BP monitor readings. Average booklet readings were 0.6 mmHg systolic [95% confidence interval (95% CI) -0.6 to 1.8] and 0.3 mmHg diastolic (95% CI -0.3 to 0.8) lower than those on the monitor.'] ['BACKGROUND', 'OBJECTIVE', 'METHODS', 'RESULTS'] ['Adult', 'Aged', 'Aged, 80 and over', 'Blood Pressure Monitoring, Ambulatory', 'Cross-Sectional Studies', 'Female', 'Humans', 'Hypertension', 'Ischemic Attack, Transient', 'Male', 'Middle Aged', 'Reproducibility of Results', 'Self Care', 'Self Report', 'Stroke Rehabilitation'] ['y', 'e', 's'] ['y', 'e', 's']</pre>
+    <h4>Raw output</h4>
+    <pre>:: Are stroke patients" reports of home blood pressure readings reliable? Abstract: ["Home blood pressure monitoring is gaining increasing popularity among patients" Abstract: ["To assess the reliability of home BP monitoring in hypertensive patients who had suffered a recent stroke or transient ischa</pre>
+  
+</body>
+</html>

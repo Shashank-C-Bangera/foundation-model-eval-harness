@@ -1,0 +1,38 @@
+name: rag_baseline
+seed: 42
+device: cpu
+tasks:
+- classification
+- summarization
+- extraction
+prompt_versions:
+- v2
+models:
+- flan_t5_small
+datasets:
+  pubmedqa:
+    name: qiaojin/PubMedQA
+    subset: pqa_labeled
+  bc5cdr:
+    name: cvlt-mao/bc5cdr
+    subset: null
+sampling:
+  n_samples_per_task: 12
+  n_samples_by_task: {}
+generation:
+  temperature: 0.0
+  top_p: 1.0
+  max_new_tokens: 128
+paths:
+  data_parquet: data/processed/examples.parquet
+  data_jsonl: data/processed/examples.jsonl
+  runs_root: runs
+mlflow:
+  experiment_name: fmeh
+  tracking_uri: ''
+rag:
+  enabled: true
+  top_k: 3
+  embedding_model: sentence-transformers/all-MiniLM-L6-v2
+  index_path: data/processed/rag.index
+  passages_path: data/processed/rag_passages.parquet

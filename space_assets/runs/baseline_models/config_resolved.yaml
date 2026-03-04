@@ -1,0 +1,43 @@
+name: baseline_models
+seed: 42
+device: cpu
+tasks:
+- classification
+- summarization
+- extraction
+prompt_versions:
+- v2
+models:
+- flan_t5_small
+- t5_small
+- tiny_gpt2
+datasets:
+  pubmedqa:
+    name: qiaojin/PubMedQA
+    subset: pqa_labeled
+  bc5cdr:
+    name: cvlt-mao/bc5cdr
+    subset: null
+sampling:
+  n_samples_per_task: 50
+  n_samples_by_task:
+    classification: 100
+    summarization: 50
+    extraction: 50
+generation:
+  temperature: 0.0
+  top_p: 1.0
+  max_new_tokens: 64
+paths:
+  data_parquet: data/processed/examples.parquet
+  data_jsonl: data/processed/examples.jsonl
+  runs_root: runs
+mlflow:
+  experiment_name: fmeh
+  tracking_uri: ''
+rag:
+  enabled: false
+  top_k: 3
+  embedding_model: sentence-transformers/all-MiniLM-L6-v2
+  index_path: data/processed/rag.index
+  passages_path: data/processed/rag_passages.parquet
