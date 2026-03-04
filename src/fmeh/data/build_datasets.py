@@ -242,6 +242,17 @@ def build_datasets(cfg: HarnessConfig) -> pd.DataFrame:
     except Exception as exc:
         errors.append(f"BC5CDR load failed: {exc}")
 
+    required_tasks = {"classification", "summarization", "extraction"}
+    existing_tasks = {e.task for e in all_examples}
+    missing_tasks = required_tasks - existing_tasks
+    if missing_tasks:
+        console.print(
+            f"Adding synthetic fallback samples for missing tasks: {sorted(missing_tasks)}"
+        )
+        for sample in _synthetic_examples(cfg.seed):
+            if sample.task in missing_tasks:
+                all_examples.append(sample)
+
     if not all_examples:
         all_examples = _synthetic_examples(cfg.seed)
         console.print("Falling back to synthetic samples because public dataset load failed.")
