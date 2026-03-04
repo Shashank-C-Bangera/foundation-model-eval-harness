@@ -3,8 +3,7 @@ title: Foundation Model Eval Dashboard
 emoji: 📊
 colorFrom: indigo
 colorTo: blue
-sdk: streamlit
-sdk_version: "1.40.0"
+sdk: docker
 app_file: app.py
 pinned: false
 ---

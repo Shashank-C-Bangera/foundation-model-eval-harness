@@ -104,7 +104,7 @@ def main() -> None:
                 )
                 print(f"Uploaded folder to {repo_id}: {p}")
 
-        for p in [Path("app.py"), Path("README.md"), Path("requirements.txt")]:
+        for p in [Path("app.py"), Path("README.md"), Path("requirements.txt"), Path("Dockerfile")]:
             if p.exists():
                 api.upload_file(
                     repo_id=repo_id,
