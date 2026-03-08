@@ -6,7 +6,7 @@ FMEH := $(VENV)/bin/fmeh
 STREAMLIT := $(VENV)/bin/streamlit
 EXP ?= baseline_models
 
-.PHONY: setup lint test data run report serve docker-build docker-run space-sync space-sync-all
+.PHONY: setup lint test data run report export serve docker-build docker-run space-sync space-sync-all
 
 setup:
 	$(PYTHON) -m venv $(VENV)
@@ -30,6 +30,9 @@ run:
 
 report:
 	$(FMEH) report --run-dir runs/$(EXP)
+
+export:
+	$(FMEH) export --run-dir runs/$(EXP)
 
 serve:
 	$(STREAMLIT) run app.py

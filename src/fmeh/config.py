@@ -18,6 +18,7 @@ class DatasetSource(BaseModel):
 class DatasetsConfig(BaseModel):
     pubmedqa: DatasetSource
     bc5cdr: DatasetSource
+    allow_synthetic_fallback: bool = False
 
 
 class SamplingConfig(BaseModel):

@@ -15,6 +15,7 @@ from rich.progress import track
 
 from fmeh.config import HarnessConfig, load_experiment_config, save_resolved_config
 from fmeh.data.build_datasets import build_datasets, sample_for_run
+from fmeh.export.powerbi_export import export_run
 from fmeh.graph.build_graph import build_eval_graph
 from fmeh.graph.nodes import NodeContext
 from fmeh.logging.duckdb_logger import DuckDBLogger
@@ -129,6 +130,9 @@ def run_experiment(
                         "target_json": row.get("target_json", ""),
                         "meta_json": row.get("meta_json", "{}"),
                         "repair_attempted": False,
+                        "empty_output": False,
+                        "repaired": False,
+                        "exception_occurred": False,
                         "error": "",
                     }
                     try:
@@ -152,6 +156,12 @@ def run_experiment(
                             "parsed_output": "{}",
                             "parse_valid": False,
                             "parse_error": "",
+                            "empty_output": True,
+                            "repaired": False,
+                            "exception_occurred": True,
+                            "y_true_norm": "",
+                            "y_pred_norm": "",
+                            "correct": False,
                             "metrics_json": "{}",
                             "latency_sec": 0.0,
                             "prompt_tokens": 0,
@@ -198,6 +208,18 @@ def serve(
     env["FMEH_RUNS_ROOT"] = run_dir
     cmd = ["streamlit", "run", str(app_path), "--server.port", str(port)]
     subprocess.run(cmd, check=True, env=env)
+
+
+@app.command("export")
+def export(
+    run_dir: str = typer.Option(..., help="Run directory, e.g. runs/baseline_models"),
+    max_failures: int = typer.Option(200, help="Maximum rows to write in failure_examples.csv"),
+) -> None:
+    run_path = Path(run_dir)
+    out_dir = run_path / "exports"
+    paths = export_run(run_dir=run_path, out_dir=out_dir, max_failures=max_failures)
+    for name, path in paths.items():
+        console.print(f"[{name}] {path}")
 
 
 if __name__ == "__main__":

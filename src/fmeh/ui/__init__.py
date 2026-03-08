@@ -3,6 +3,7 @@
 from fmeh.ui.data import (
     DEFAULT_METRIC_BY_TASK,
     agg_metrics,
+    build_model_leaderboard,
     default_run_name,
     discover_run_dirs,
     load_sample_results,
@@ -11,6 +12,7 @@ from fmeh.ui.data import (
 __all__ = [
     "DEFAULT_METRIC_BY_TASK",
     "agg_metrics",
+    "build_model_leaderboard",
     "default_run_name",
     "discover_run_dirs",
     "load_sample_results",

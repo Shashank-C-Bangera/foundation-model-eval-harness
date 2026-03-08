@@ -8,5 +8,5 @@ summarization: |
   Produce a faithful summary with only claims supported by the input context.
   Avoid hallucinations and keep it short.
 extraction: |
-  Extract only exact disease and chemical mentions from the input.
-  Use normalized strings and avoid duplicates.
+  Extract disease and chemical mentions from the input text.
+  Use short canonical mention strings and avoid duplicates.

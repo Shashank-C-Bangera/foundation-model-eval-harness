@@ -40,6 +40,23 @@ def render_prompt(task: str, input_text: str, version: str, retrieved_context: s
     cfg = load_prompt_version(version)
     system = cfg.get("system", "You are a careful biomedical NLP assistant.")
     task_instruction = cfg.get(task, "")
+    context_text = retrieved_context or "none"
+
+    if task == "extraction":
+        # Small local models often fail with long JSON-schema prompts. Keep extraction prompt compact
+        # and parse the mention list into schema in downstream parsing.
+        extraction_system = (
+            "You are a biomedical entity extraction assistant. "
+            "Extract explicit disease and chemical mentions from the input."
+        )
+        extraction_template = PromptTemplate.from_template(
+            "{system}\n\n" "{instruction}\n\n" "Text:\n{input_text}\n\n" "Mentions:\n"
+        )
+        return extraction_template.format(
+            system=extraction_system,
+            instruction=task_instruction,
+            input_text=input_text,
+        )
 
     base = PromptTemplate.from_template(
         "{system}\n\n"
@@ -58,7 +75,7 @@ def render_prompt(task: str, input_text: str, version: str, retrieved_context: s
         system=system,
         task=task,
         instruction=task_instruction,
-        context=retrieved_context or "none",
+        context=context_text,
         input_text=input_text,
         schema_json=schema_json,
     )

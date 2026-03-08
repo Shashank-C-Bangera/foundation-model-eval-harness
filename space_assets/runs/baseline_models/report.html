@@ -23,7 +23,6 @@
       <th>prompt_version</th>
       <th>metric_parse_valid</th>
       <th>metric_accuracy</th>
-      <th>metric_macro_f1_single</th>
       <th>metric_rougeL</th>
       <th>metric_bertscore_f1</th>
       <th>metric_pred_length</th>
@@ -43,7 +42,6 @@
       <td>v2</td>
       <td>1.0000</td>
       <td>0.5100</td>
-      <td>0.1700</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -53,7 +51,7 @@
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>0.1260</td>
+      <td>0.1288</td>
     </tr>
     <tr>
       <td>classification</td>
@@ -61,7 +59,6 @@
       <td>v2</td>
       <td>0.1800</td>
       <td>0.1100</td>
-      <td>0.0367</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -71,7 +68,7 @@
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>0.6663</td>
+      <td>0.6336</td>
     </tr>
     <tr>
       <td>classification</td>
@@ -79,7 +76,6 @@
       <td>v2</td>
       <td>0.0000</td>
       <td>0.0400</td>
-      <td>0.0133</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -89,43 +85,41 @@
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>0.0388</td>
+      <td>0.0375</td>
     </tr>
     <tr>
       <td>extraction</td>
       <td>flan_t5_small</td>
       <td>v2</td>
+      <td>0.6600</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.1000</td>
+      <td>0.0500</td>
+      <td>0.0624</td>
       <td>0.0000</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>0.0000</td>
-      <td>0.0000</td>
-      <td>0.0000</td>
-      <td>0.2400</td>
-      <td>0.0700</td>
+      <td>0.2195</td>
     </tr>
     <tr>
       <td>extraction</td>
       <td>t5_small</td>
       <td>v2</td>
-      <td>0.0200</td>
+      <td>0.3800</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>NaN</td>
+      <td>0.0300</td>
+      <td>0.0217</td>
+      <td>0.0247</td>
       <td>0.0000</td>
-      <td>0.0000</td>
-      <td>0.0000</td>
-      <td>0.2400</td>
-      <td>0.6031</td>
+      <td>0.5347</td>
     </tr>
     <tr>
       <td>extraction</td>
@@ -138,19 +132,17 @@
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>NaN</td>
       <td>0.0000</td>
       <td>0.0000</td>
       <td>0.0000</td>
-      <td>0.2400</td>
-      <td>0.0350</td>
+      <td>0.0000</td>
+      <td>0.0348</td>
     </tr>
     <tr>
       <td>summarization</td>
       <td>flan_t5_small</td>
       <td>v2</td>
       <td>0.9400</td>
-      <td>NaN</td>
       <td>NaN</td>
       <td>0.1151</td>
       <td>0.7266</td>
@@ -161,14 +153,13 @@
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>0.3556</td>
+      <td>0.3398</td>
     </tr>
     <tr>
       <td>summarization</td>
       <td>t5_small</td>
       <td>v2</td>
       <td>1.0000</td>
-      <td>NaN</td>
       <td>NaN</td>
       <td>0.0732</td>
       <td>0.6918</td>
@@ -179,14 +170,13 @@
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>0.5417</td>
+      <td>0.5296</td>
     </tr>
     <tr>
       <td>summarization</td>
       <td>tiny_gpt2</td>
       <td>v2</td>
       <td>1.0000</td>
-      <td>NaN</td>
       <td>NaN</td>
       <td>0.0004</td>
       <td>0.5893</td>
@@ -197,7 +187,7 @@
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>0.0384</td>
+      <td>0.0371</td>
     </tr>
   </tbody>
 </table>
@@ -213,11 +203,15 @@
   <tbody>
     <tr>
       <td>Expecting value: line 1 column 1 (char 0)</td>
-      <td>274</td>
+      <td>272</td>
     </tr>
     <tr>
       <td>empty output</td>
-      <td>53</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <td>Extra data: line 1 column 2 (char 1)</td>
+      <td>2</td>
     </tr>
     <tr>
       <td>Extra data: line 1 column 16 (char 15)</td>
@@ -241,10 +235,6 @@
     </tr>
     <tr>
       <td>Extra data: line 1 column 3 (char 2)</td>
-      <td>1</td>
-    </tr>
-    <tr>
-      <td>Extra data: line 1 column 4 (char 3)</td>
       <td>1</td>
     </tr>
   </tbody>

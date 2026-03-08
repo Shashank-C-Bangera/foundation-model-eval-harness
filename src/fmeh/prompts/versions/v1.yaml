@@ -7,5 +7,5 @@ summarization: |
   Summarize the biomedical passage in concise clinical language.
   Return JSON with field: summary.
 extraction: |
-  Extract diseases and chemicals mentioned in the text.
-  Return JSON with fields: diseases (list of strings), chemicals (list of strings).
+  Extract disease and chemical mentions in the text.
+  Return comma-separated mentions only.

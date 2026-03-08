@@ -4,7 +4,7 @@ emoji: 📊
 colorFrom: indigo
 colorTo: blue
 sdk: docker
-app_file: app.py
+app_port: 7860
 pinned: false
 ---
 
@@ -75,6 +75,23 @@ Outputs are stored in `runs/<exp_name>/`:
 - `report.html` and `report.md`: generated report
 - `artifacts/`: plot images
 - `mlruns/`: local MLflow tracking store
+
+## Power BI / Power Platform Export
+
+Generate deterministic CSV tables from DuckDB run logs:
+
+```bash
+make export EXP=baseline_models
+```
+
+This writes files under `runs/<exp_name>/exports/`:
+
+- `run_summary.csv`: run-level KPIs (best model, overall score, reliability rates)
+- `model_metrics.csv`: one row per model with task-level default scores and counts
+- `model_task_metrics.csv`: one row per model × task × prompt version with stable metric columns
+- `failure_examples.csv`: curated failed/invalid rows for drill-down in BI dashboards
+
+These CSVs are designed for upload to SharePoint/OneDrive with scheduled Power BI refresh.
 
 ## Architecture
 

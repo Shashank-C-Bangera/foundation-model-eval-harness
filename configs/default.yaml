@@ -15,6 +15,7 @@ datasets:
   bc5cdr:
     name: cvlt-mao/bc5cdr
     subset: null
+  allow_synthetic_fallback: false
 sampling:
   n_samples_per_task: 20
 generation:

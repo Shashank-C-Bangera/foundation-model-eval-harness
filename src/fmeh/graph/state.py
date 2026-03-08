@@ -24,9 +24,15 @@ class EvalState(TypedDict, total=False):
     parsed_output: dict[str, Any] | None
     parse_valid: bool
     parse_error: str
+    empty_output: bool
     repair_attempted: bool
+    repaired: bool
+    exception_occurred: bool
 
     metrics: dict[str, float]
+    y_true_norm: str
+    y_pred_norm: str
+    correct: bool
     latency_sec: float
     prompt_tokens: int
     output_tokens: int

@@ -112,10 +112,30 @@ def classification_scores(target_label: str, pred_label: str) -> dict[str, float
     t = normalize_label(target_label)
     p = normalize_label(pred_label)
     acc = float(t == p)
-    macro = f1_score([t], [p], average="macro", labels=["yes", "no", "maybe"], zero_division=0)
     return {
         "accuracy": acc,
-        "macro_f1_single": float(macro),
+    }
+
+
+def classification_slice_scores(y_true: list[str], y_pred: list[str]) -> dict[str, float]:
+    if not y_true:
+        return {"accuracy": math.nan, "macro_f1": math.nan}
+
+    y_true_norm = [normalize_label(x) for x in y_true]
+    y_pred_norm = [normalize_label(x) for x in y_pred]
+    accuracy = float(
+        sum(t == p for t, p in zip(y_true_norm, y_pred_norm, strict=False)) / len(y_true_norm)
+    )
+    macro = f1_score(
+        y_true_norm,
+        y_pred_norm,
+        average="macro",
+        labels=["yes", "no", "maybe"],
+        zero_division=0,
+    )
+    return {
+        "accuracy": accuracy,
+        "macro_f1": float(macro),
     }
 
 

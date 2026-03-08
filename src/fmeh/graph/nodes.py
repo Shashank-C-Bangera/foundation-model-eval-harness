@@ -69,10 +69,37 @@ def _split_mentions(text: str) -> list[str]:
     if not cleaned:
         return []
     out: list[str] = []
+    seen: set[str] = set()
     for part in re.split(r"[,\n;|]", cleaned):
-        term = part.strip().strip('"').strip("'")
-        if term:
-            out.append(term)
+        term = part.strip().strip('"').strip("'").strip("`")
+        term = re.sub(r"\s+", " ", term).strip(" .:-")
+        lowered = term.lower()
+        if not term or lowered in {"none", "null", "n/a", "na"}:
+            continue
+        if any(
+            noise in lowered
+            for noise in (
+                "return exactly one json object",
+                "required json shape",
+                "do not return markdown",
+                "do not echo the prompt",
+                '"string"',
+                "output rules",
+            )
+        ):
+            continue
+        words = re.findall(r"[a-z0-9-]+", lowered)
+        if not words:
+            continue
+        # Drop obvious degeneration like "factors factors factors ...".
+        if len(words) >= 4 and len(set(words)) / len(words) < 0.35:
+            continue
+        if len(words) > 8:
+            continue
+        canonical = " ".join(words)
+        if canonical not in seen:
+            seen.add(canonical)
+            out.append(" ".join(term.split()))
     return out
 
 
@@ -90,6 +117,11 @@ def _extraction_fallback(raw_output: str) -> dict[str, Any] | None:
     diseases = _split_mentions(disease_match.group(1)) if disease_match else []
     chemicals = _split_mentions(chemical_match.group(1)) if chemical_match else []
     if not diseases and not chemicals:
+        # Handle compact outputs like "epilepticus" or "aspirin, fever".
+        fallback_mentions = _split_mentions(raw_output)
+        if fallback_mentions:
+            diseases = fallback_mentions
+    if not diseases and not chemicals:
         return None
     payload = {"diseases": diseases, "chemicals": chemicals}
     try:
@@ -98,12 +130,13 @@ def _extraction_fallback(raw_output: str) -> dict[str, Any] | None:
         return None
 
 
-def _parse_output(task: str, raw_output: str) -> tuple[dict[str, Any] | None, str]:
+def _parse_output(task: str, raw_output: str) -> tuple[dict[str, Any] | None, str, bool]:
     if not non_empty_output(raw_output):
-        return None, "empty output"
+        return None, "empty output", True
 
     payload: dict[str, Any] | None = None
     parse_error = ""
+    empty_output = False
     candidates = [raw_output, simple_json_repair(raw_output)]
 
     for candidate in candidates:
@@ -121,8 +154,8 @@ def _parse_output(task: str, raw_output: str) -> tuple[dict[str, Any] | None, st
             elif task == "extraction":
                 payload = ExtractionOutput.model_validate(parsed).model_dump()
             else:
-                return None, f"unsupported task: {task}"
-            return payload, ""
+                return None, f"unsupported task: {task}", empty_output
+            return payload, "", empty_output
         except ValidationError as exc:
             parse_error = str(exc)
 
@@ -134,9 +167,9 @@ def _parse_output(task: str, raw_output: str) -> tuple[dict[str, Any] | None, st
     elif task == "extraction":
         fallback = _extraction_fallback(raw_output)
     if fallback is not None:
-        return fallback, ""
+        return fallback, "", empty_output
 
-    return None, parse_error or "unable to parse"
+    return None, parse_error or "unable to parse", empty_output
 
 
 def node_retrieve_context(ctx: NodeContext):
@@ -179,11 +212,12 @@ def node_run_model(ctx: NodeContext):
 
 
 def node_parse_output(state: EvalState) -> dict[str, Any]:
-    parsed, parse_error = _parse_output(state["task"], state.get("raw_output", ""))
+    parsed, parse_error, empty_output = _parse_output(state["task"], state.get("raw_output", ""))
     return {
         "parsed_output": parsed,
         "parse_valid": json_validity(parsed),
         "parse_error": parse_error,
+        "empty_output": empty_output,
     }
 
 
@@ -199,6 +233,9 @@ def node_evaluate(state: EvalState) -> dict[str, Any]:
     metrics: dict[str, float] = {"parse_valid": float(bool(state.get("parse_valid")))}
     parsed = state.get("parsed_output") or {}
     docs = state.get("retrieval_meta", {}).get("docs", [])
+    y_true_norm = ""
+    y_pred_norm = ""
+    correct = False
     if docs:
         query_terms = {t.lower() for t in state.get("input", "").split() if len(t) > 4}
         doc_terms = {t.lower() for d in docs for t in str(d.get("text", "")).split()}
@@ -208,8 +245,10 @@ def node_evaluate(state: EvalState) -> dict[str, Any]:
             )
 
     if state["task"] == "classification":
-        pred_label = str(parsed.get("label", "maybe"))
-        metrics.update(classification_scores(state.get("target_text", "maybe"), pred_label))
+        y_true_norm = normalize_label(state.get("target_text", "maybe"))
+        y_pred_norm = normalize_label(parsed.get("label", "maybe"))
+        correct = y_true_norm == y_pred_norm
+        metrics.update(classification_scores(y_true_norm, y_pred_norm))
     elif state["task"] == "summarization":
         pred_summary = str(parsed.get("summary", ""))
         target = state.get("target_text", "")
@@ -226,7 +265,12 @@ def node_evaluate(state: EvalState) -> dict[str, Any]:
                 target_obj = {}
         metrics.update(extraction_scores(target_obj, parsed))
 
-    return {"metrics": metrics}
+    return {
+        "metrics": metrics,
+        "y_true_norm": y_true_norm,
+        "y_pred_norm": y_pred_norm,
+        "correct": correct,
+    }
 
 
 def node_log(ctx: NodeContext):
@@ -249,6 +293,12 @@ def node_log(ctx: NodeContext):
             "parsed_output": json.dumps(state.get("parsed_output") or {}, ensure_ascii=False),
             "parse_valid": bool(state.get("parse_valid", False)),
             "parse_error": state.get("parse_error", ""),
+            "empty_output": bool(state.get("empty_output", False)),
+            "repaired": bool(state.get("repair_attempted", False)),
+            "exception_occurred": bool(str(state.get("error", "")).strip()),
+            "y_true_norm": state.get("y_true_norm", ""),
+            "y_pred_norm": state.get("y_pred_norm", ""),
+            "correct": bool(state.get("correct", False)),
             "metrics_json": json.dumps(state.get("metrics") or {}, ensure_ascii=False),
             "latency_sec": float(state.get("latency_sec", 0.0)),
             "prompt_tokens": int(state.get("prompt_tokens", 0)),

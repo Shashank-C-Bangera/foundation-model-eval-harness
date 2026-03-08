@@ -34,6 +34,12 @@ class DuckDBLogger:
                 parsed_output TEXT,
                 parse_valid BOOLEAN,
                 parse_error TEXT,
+                empty_output BOOLEAN,
+                repaired BOOLEAN,
+                exception_occurred BOOLEAN,
+                y_true_norm TEXT,
+                y_pred_norm TEXT,
+                correct BOOLEAN,
                 metrics_json TEXT,
                 latency_sec DOUBLE,
                 prompt_tokens INTEGER,
@@ -47,7 +53,7 @@ class DuckDBLogger:
         self.conn.execute(
             """
             INSERT INTO sample_results VALUES (
-                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
             )
             """,
             [
@@ -68,6 +74,12 @@ class DuckDBLogger:
                 row.get("parsed_output", "{}"),
                 bool(row.get("parse_valid", False)),
                 row.get("parse_error", ""),
+                bool(row.get("empty_output", False)),
+                bool(row.get("repaired", False)),
+                bool(row.get("exception_occurred", False)),
+                row.get("y_true_norm", ""),
+                row.get("y_pred_norm", ""),
+                bool(row.get("correct", False)),
                 row.get("metrics_json", "{}"),
                 float(row.get("latency_sec", 0.0)),
                 int(row.get("prompt_tokens", 0)),

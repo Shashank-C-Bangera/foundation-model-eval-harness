@@ -8,12 +8,15 @@ import streamlit as st
 from fmeh.ui.data import (
     DEFAULT_METRIC_BY_TASK,
     agg_metrics,
+    build_model_leaderboard,
     default_run_name,
     discover_run_dirs,
     load_sample_results,
 )
 
 PAGE_OPTIONS = ["Overview", "Compare", "Inspect"]
+NON_INSTRUCT_MODELS = {"t5_small", "tiny_gpt2"}
+
 COMPARE_METRIC_ORDER = [
     "macro_f1",
     "accuracy",
@@ -48,12 +51,6 @@ METRIC_LABELS = {
     "unsupported_claim_proxy": "Unsupported-claim proxy",
 }
 
-TASK_LABELS = {
-    "classification": "classification_macro_f1",
-    "summarization": "summarization_bertscore_f1",
-    "extraction": "extraction_f1",
-}
-
 
 def _show_dataframe(df: pd.DataFrame) -> None:
     try:
@@ -74,6 +71,16 @@ def _fmt_metric(value: float) -> str:
     return f"{value:.3f}"
 
 
+def _metric_label(metric: str) -> str:
+    return METRIC_LABELS.get(metric, metric.replace("_", " "))
+
+
+def _model_label(model_id: str) -> str:
+    if model_id in NON_INSTRUCT_MODELS:
+        return f"{model_id} (non-instruct)"
+    return model_id
+
+
 def _metric_options_for_task(task: str, frame: pd.DataFrame) -> list[str]:
     if frame.empty:
         return []
@@ -88,51 +95,6 @@ def _metric_options_for_task(task: str, frame: pd.DataFrame) -> list[str]:
         if task_frame[metric].notna().any():
             options.append(metric)
     return options
-
-
-def _build_overview_leaderboard(agg: dict[str, pd.DataFrame]) -> pd.DataFrame:
-    by_model = agg["by_model"].copy()
-    by_task_model = agg["by_task_model"].copy()
-    if by_model.empty:
-        return by_model
-
-    default_score_cols: list[str] = []
-    for task, metric in DEFAULT_METRIC_BY_TASK.items():
-        task_col = TASK_LABELS[task]
-        if metric not in by_task_model.columns:
-            continue
-        task_values = (
-            by_task_model[by_task_model["task"] == task][["model_id", metric]]
-            .drop_duplicates(subset=["model_id"])
-            .set_index("model_id")[metric]
-        )
-        # Assign directly to avoid merge suffix collisions (e.g., extraction_f1).
-        by_model[task_col] = by_model["model_id"].map(task_values)
-        default_score_cols.append(task_col)
-
-    if default_score_cols:
-        by_model["overall_score"] = by_model[default_score_cols].mean(axis=1, skipna=True)
-    else:
-        by_model["overall_score"] = float("nan")
-
-    keep_cols = [
-        "model_id",
-        "classification_macro_f1",
-        "summarization_bertscore_f1",
-        "extraction_f1",
-        "parse_valid_rate",
-        "error_rate",
-        "n_total",
-        "overall_score",
-    ]
-    for col in keep_cols:
-        if col not in by_model.columns:
-            by_model[col] = float("nan")
-
-    by_model = by_model[keep_cols].sort_values(
-        by=["overall_score", "parse_valid_rate"], ascending=[False, False]
-    )
-    return by_model
 
 
 def _render_overview(run_name: str, df: pd.DataFrame, agg: dict[str, pd.DataFrame]) -> None:
@@ -150,55 +112,63 @@ def _render_overview(run_name: str, df: pd.DataFrame, agg: dict[str, pd.DataFram
         f"Models: `{len(models)}` | Tasks: `{', '.join(tasks)}`"
     )
 
-    leaderboard = _build_overview_leaderboard(agg)
+    leaderboard = build_model_leaderboard(agg)
     best_model = "-"
-    best_score = float("nan")
+    best_score = pd.NA
     if not leaderboard.empty:
         top = leaderboard.iloc[0]
-        best_model = str(top["model_id"])
-        best_score = float(top.get("overall_score", float("nan")))
+        best_model = _model_label(str(top["model_id"]))
+        best_score = top.get("overall_score", pd.NA)
 
-    parse_valid_rate = float(df["parse_valid"].mean()) if not df.empty else float("nan")
-    error_rate = float(df["has_error"].mean()) if not df.empty else float("nan")
+    valid_rate = float(df["parse_valid"].mean()) if not df.empty else float("nan")
+    invalid_rate = float(df["invalid_output"].mean()) if not df.empty else float("nan")
+    repair_rate = float(df["repaired"].mean()) if not df.empty else float("nan")
 
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3, col4 = st.columns(4)
     col1.metric(
         "Best model",
         best_model,
         delta=f"Score {_fmt_metric(best_score)}" if not pd.isna(best_score) else None,
     )
-    col2.metric("Valid output %", _fmt_rate(parse_valid_rate))
-    col3.metric("Error rate %", _fmt_rate(error_rate))
+    col2.metric("Valid output %", _fmt_rate(valid_rate))
+    col3.metric("Invalid output %", _fmt_rate(invalid_rate))
+    col4.metric("Repair rate %", _fmt_rate(repair_rate))
 
     chart_source = leaderboard[["model_id", "overall_score"]].dropna(subset=["overall_score"])
     if not chart_source.empty:
+        chart_source = chart_source.copy()
+        chart_source["model_id"] = chart_source["model_id"].map(_model_label)
         st.bar_chart(chart_source.set_index("model_id")["overall_score"])
 
-    display = (
-        leaderboard[
-            [
-                "model_id",
-                "classification_macro_f1",
-                "summarization_bertscore_f1",
-                "extraction_f1",
-                "parse_valid_rate",
-                "error_rate",
-                "n_total",
-            ]
+    display = leaderboard[
+        [
+            "model_id",
+            "classification_macro_f1",
+            "summarization_bertscore_f1",
+            "extraction_f1",
+            "N_cls",
+            "N_sum",
+            "N_ext",
+            "parse_valid_rate",
+            "invalid_output_rate",
+            "repair_rate",
+            "exception_rate",
+            "n_total",
         ]
-        .copy()
-        .rename(
-            columns={
-                "model_id": "Model",
-                "classification_macro_f1": "Classification Macro F1",
-                "summarization_bertscore_f1": "Summarization BERTScore F1",
-                "extraction_f1": "Extraction F1",
-                "parse_valid_rate": "Valid output %",
-                "error_rate": "Error rate %",
-                "n_total": "N",
-            }
-        )
+    ].rename(
+        columns={
+            "model_id": "Model",
+            "classification_macro_f1": "Classification Macro F1",
+            "summarization_bertscore_f1": "Summarization BERTScore F1",
+            "extraction_f1": "Extraction F1",
+            "parse_valid_rate": "Valid output %",
+            "invalid_output_rate": "Invalid output %",
+            "repair_rate": "Repair rate %",
+            "exception_rate": "Exception rate %",
+            "n_total": "N_total",
+        }
     )
+    display["Model"] = display["Model"].astype(str).map(_model_label)
     _show_dataframe(display)
 
 
@@ -231,10 +201,15 @@ def _render_compare(agg: dict[str, pd.DataFrame]) -> None:
         st.info("No rows for selected task.")
         return
 
+    if task == "extraction" and view["n"].max() < int(agg.get("min_task_n", 50)):
+        st.warning(
+            "Extraction has insufficient data (< min task N). Metric is excluded from scoring."
+        )
+
     if show_prompt_versions:
-        view["label"] = view["model_id"] + " | " + view["prompt_version"]
+        view["label"] = view["model_id"].map(_model_label) + " | " + view["prompt_version"]
     else:
-        view["label"] = view["model_id"]
+        view["label"] = view["model_id"].map(_model_label)
 
     view = view.sort_values(by=metric, ascending=False, na_position="last")
     st.bar_chart(view.set_index("label")[metric])
@@ -242,17 +217,29 @@ def _render_compare(agg: dict[str, pd.DataFrame]) -> None:
     table_cols = ["model_id"]
     if show_prompt_versions:
         table_cols.append("prompt_version")
-    table_cols.extend(["n", "parse_valid_rate", "error_rate", metric])
+    table_cols.extend(
+        [
+            "n",
+            metric,
+            "parse_valid_rate",
+            "invalid_output_rate",
+            "repair_rate",
+            "exception_rate",
+        ]
+    )
     table = view[table_cols].rename(
         columns={
             "model_id": "Model",
             "prompt_version": "Prompt version",
             "n": "N",
-            "parse_valid_rate": "Valid output %",
-            "error_rate": "Error rate %",
             metric: _metric_label(metric),
+            "parse_valid_rate": "Valid output %",
+            "invalid_output_rate": "Invalid output %",
+            "repair_rate": "Repair rate %",
+            "exception_rate": "Exception rate %",
         }
     )
+    table["Model"] = table["Model"].astype(str).map(_model_label)
     _show_dataframe(table)
 
 
@@ -264,10 +251,6 @@ def _target_value(row: pd.Series) -> str:
     if target_json.strip():
         return target_json
     return "-"
-
-
-def _metric_label(metric: str) -> str:
-    return METRIC_LABELS.get(metric, metric.replace("_", " "))
 
 
 def _render_inspect(df: pd.DataFrame) -> None:
@@ -286,7 +269,11 @@ def _render_inspect(df: pd.DataFrame) -> None:
     if model_choice != "All":
         task_df = task_df[task_df["model_id"] == model_choice]
     if only_failures:
-        task_df = task_df[(~task_df["parse_valid"]) | task_df["has_error"]]
+        task_df = task_df[
+            (~task_df["parse_valid"])
+            | task_df["exception_occurred"]
+            | (task_df["y_pred_norm"] == "")
+        ]
     if parse_valid_only:
         task_df = task_df[task_df["parse_valid"]]
 
@@ -294,9 +281,6 @@ def _render_inspect(df: pd.DataFrame) -> None:
     if task_df.empty:
         st.info("No rows match current filters.")
         return
-
-    default_metric = DEFAULT_METRIC_BY_TASK.get(task, "")
-    selected_metric = default_metric if default_metric in task_df.columns else ""
 
     page_size = 10
     max_page = max(1, math.ceil(len(task_df) / page_size))
@@ -306,9 +290,17 @@ def _render_inspect(df: pd.DataFrame) -> None:
     end = start + page_size
     page_df = task_df.iloc[start:end].copy()
 
-    table_cols = ["id", "task", "model_id", "prompt_version", "parse_valid", "has_error"]
-    if selected_metric:
-        table_cols.insert(4, selected_metric)
+    table_cols = [
+        "id",
+        "task",
+        "model_id",
+        "prompt_version",
+        "parse_valid",
+        "repaired",
+        "exception_occurred",
+    ]
+    if task == "classification":
+        table_cols.extend(["y_true_norm", "y_pred_norm", "correct"])
     table = page_df[table_cols].rename(
         columns={
             "id": "ID",
@@ -316,10 +308,14 @@ def _render_inspect(df: pd.DataFrame) -> None:
             "model_id": "Model",
             "prompt_version": "Prompt version",
             "parse_valid": "Valid output",
-            "has_error": "Has error",
-            selected_metric: _metric_label(selected_metric) if selected_metric else selected_metric,
+            "repaired": "Repaired",
+            "exception_occurred": "Exception",
+            "y_true_norm": "y_true_norm",
+            "y_pred_norm": "y_pred_norm",
+            "correct": "correct",
         }
     )
+    table["Model"] = table["Model"].astype(str).map(_model_label)
     _show_dataframe(table)
 
     for _, row in page_df.iterrows():
